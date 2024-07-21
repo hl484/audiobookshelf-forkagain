@@ -213,8 +213,8 @@ class BookScanner {
       if (key === 'authors') {
         // Check for authors added
         for (const authorName of bookMetadata.authors) {
-          if (!media.authors.some(au => au.name === authorName)) {
-            const existingAuthorId = await Database.getAuthorIdByName(libraryItemData.libraryId, authorName)
+          if (!media.authors.some(au => au.name === authorName.replace(/\s+/g, '').toLowerCase())) {
+            const existingAuthorId = await Database.getAuthorIdByName(libraryItemData.libraryId, authorName.replace(/\s+/g, '').toLowerCase())
             if (existingAuthorId) {
               await Database.bookAuthorModel.create({
                 bookId: media.id,
@@ -224,8 +224,8 @@ class BookScanner {
               authorsUpdated = true
             } else {
               const newAuthor = await Database.authorModel.create({
-                name: authorName,
-                lastFirst: parseNameString.nameToLastFirst(authorName),
+                name: authorName.replace(/\s+/g, '').toLowerCase(),
+                lastFirst: parseNameString.nameToLastFirst(authorName.replace(/\s+/g, '').toLowerCase()),
                 libraryId: libraryItemData.libraryId
               })
               await media.addAuthor(newAuthor)
@@ -471,7 +471,7 @@ class BookScanner {
     }
     if (bookMetadata.authors.length) {
       for (const authorName of bookMetadata.authors) {
-        const matchingAuthorId = await Database.getAuthorIdByName(libraryItemData.libraryId, authorName)
+        const matchingAuthorId = await Database.getAuthorIdByName(libraryItemData.libraryId, authorName.replace(/\s+/g, '').toLowerCase()) //Query the standardized author name
         if (matchingAuthorId) {
           bookObject.bookAuthors.push({
             authorId: matchingAuthorId
@@ -481,8 +481,8 @@ class BookScanner {
           bookObject.bookAuthors.push({
             author: {
               libraryId: libraryItemData.libraryId,
-              name: authorName,
-              lastFirst: parseNameString.nameToLastFirst(authorName)
+              name: authorName.replace(/\s+/g, '').toLowerCase(),
+              lastFirst: parseNameString.nameToLastFirst(authorName.replace(/\s+/g, '').toLowerCase()) //Standardize author names
             }
           })
         }
