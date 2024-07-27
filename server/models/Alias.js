@@ -91,7 +91,7 @@ class Alias extends Model {
   static associate(models) {
     this.belongsTo(models.Author, {
       foreignKey: 'authorId',
-      as: 'author',
+      as: 'authors',
       onDelete: 'CASCADE'
     })
   }

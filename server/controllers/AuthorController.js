@@ -62,6 +62,24 @@ class AuthorController {
     return res.json(authorJson)
   }
 
+  async getAliases(req, res) {
+    try {
+      const author = await Database.authorModel.findByPk(req.params.id);
+      if (!author) {
+        return res.status(404).send('Author not found');
+      }
+
+      const aliases = await Database.aliasModel.findAll({
+        where: { authorId: author.id }
+      });
+
+      res.json(aliases);
+    } catch (error) {
+      console.error('Error fetching aliases:', error);
+      res.status(500).send('Internal server error');
+    }
+  }
+
   /**
    *
    * @param {import('express').Request} req
@@ -70,6 +88,35 @@ class AuthorController {
   async update(req, res) {
     const payload = req.body
     let hasUpdated = false
+
+    // Add aliases to the current author
+    if (payload.aliases) {
+      const existingAliases = await Database.aliasModel.findAll({
+        where: { authorId: req.author.id }
+      })
+      const existingAliasIds = existingAliases.map(alias => alias.id)
+
+      for (const newAlias of payload.aliases) {
+        if (existingAliasIds.includes(newAlias.id)) {
+          await Database.aliasModel.update(newAlias, {
+            where: { id: newAlias.id }
+          })
+        } else {
+          await Database.aliasModel.create({
+            ...newAlias,
+            authorId: req.author.id
+          })
+        }
+      }
+      hasUpdated = true;
+
+      const aliasToDelete = existingAliases.filter(alias => !payload.aliases.some(newAlias => newAlias.id === alias.id));
+      await Database.aliasModel.destroy({
+        where: { id: aliasToDelete.map(alias => alias.id) }
+      });
+
+    }
+
 
     // author imagePath must be set through other endpoints as of v2.4.5
     if (payload.imagePath !== undefined) {
@@ -201,6 +248,10 @@ class AuthorController {
     Logger.info(`[AuthorController] Removing author "${req.author.name}"`)
 
     await Database.authorModel.removeById(req.author.id)
+
+    await Database.aliasModel.destroy({
+      where: { authorId: req.author.id }
+    });
 
     if (req.author.imagePath) {
       await CacheManager.purgeImageCache(req.author.id) // Purge cache
