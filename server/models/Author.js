@@ -2,6 +2,9 @@ const { DataTypes, Model, where, fn, col } = require('sequelize')
 
 const oldAuthor = require('../objects/entities/Author')
 
+const Alias = require('./Alias')
+const Logger = require('../Logger')
+
 class Author extends Model {
   constructor(values, options) {
     super(values, options)
@@ -24,6 +27,36 @@ class Author extends Model {
     this.updatedAt
     /** @type {Date} */
     this.createdAt
+  }
+
+  static associate(models) {
+    this.hasMany(models.Alias, {
+      foreignKey: 'authorId',
+      as: 'aliases'
+    })
+  }
+
+  static async migrateAuthorToAlias(authorAId, authorBId) {
+    const authorA = await this.findByPk(authorAId)
+    if (!authorA) {
+      throw new Error('Author A not found')
+    }
+
+    await Alias.create({
+      id: authorA.id,
+      name: authorA.name,
+      authorId: authorBId,
+      createdAt: authorA.createdAt,
+      updatedAt: authorA.updatedAt
+    })
+
+    await this.destroy({
+      where: {
+        id: authorAId
+      }
+    })
+
+    Logger.info(`Author ${authorAId} has been migrated to an alias for Author ${authorBId}`)
   }
 
   getOldAuthor() {

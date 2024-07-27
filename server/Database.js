@@ -52,6 +52,11 @@ class Database {
     return this.models.author
   }
 
+  /** @type {typeof import('./models/Alias')} */
+  get aliasModel() {
+    return this.models.alias
+  }
+
   /** @type {typeof import('./models/Series')} */
   get seriesModel() {
     return this.models.series
@@ -70,6 +75,11 @@ class Database {
   /** @type {typeof import('./models/BookAuthor')} */
   get bookAuthorModel() {
     return this.models.bookAuthor
+  }
+
+  /** @type {typeof import('./models/BookAlias')} */
+  get bookAliasModel() {
+    return this.models.bookAlias
   }
 
   /** @type {typeof import('./models/Podcast')} */
@@ -243,7 +253,9 @@ class Database {
     require('./models/Series').init(this.sequelize)
     require('./models/BookSeries').init(this.sequelize)
     require('./models/Author').init(this.sequelize)
+    require('./models/Alias').init(this.sequelize)
     require('./models/BookAuthor').init(this.sequelize)
+    require('./models/BookAlias').init(this.sequelize)
     require('./models/Collection').init(this.sequelize)
     require('./models/CollectionBook').init(this.sequelize)
     require('./models/Playlist').init(this.sequelize)
