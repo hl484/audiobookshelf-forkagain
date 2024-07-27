@@ -128,6 +128,7 @@ export default {
       this.$emit('edit', this.library)
     },
     scan(force = false) {
+      this.Merge()
       this.$store
         .dispatch('libraries/requestLibraryScan', { libraryId: this.library.id, force })
         .then(() => {
@@ -137,6 +138,17 @@ export default {
           console.error('Failed to start scan', error)
           this.$toast.error(this.$strings.ToastLibraryScanFailedToStart)
         })
+    },
+    Merge() {
+      const payload = {
+        message: 'Discover similar authors xxx and xxx, do you want to merge them?',
+        type: 'yesNo',
+        callback: (confirmed) => {
+          if (confirmed) {
+          }
+        }
+      }
+      this.$store.commit('globals/setConfirmPrompt', payload)
     },
     deleteClick() {
       const payload = {
