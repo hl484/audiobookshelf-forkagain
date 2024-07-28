@@ -132,12 +132,50 @@ export default {
         .dispatch('libraries/requestLibraryScan', { libraryId: this.library.id, force })
         .then(() => {
           // this.$toast.success(this.$strings.ToastLibraryScanStarted)
+
+          this.merge(duplicateAuthors)
+
+          if (result.duplicateAuthors && result.duplicateAuthors.length > 0) {
+            this.merge(result.duplicateAuthors)
+          }
         })
         .catch((error) => {
           console.error('Failed to start scan', error)
           this.$toast.error(this.$strings.ToastLibraryScanFailedToStart)
         })
     },
+    mergeAuthors(confirmed) {
+      this.$store.dispatch('libraries/mergeAuthors', confirmed)
+    },
+    merge(duplicateAuthors) {
+      const message = `Discover similar authors ${duplicateAuthors.map((author) => author.name).join(' and ')}, do you want to merge them?`
+      const payload = {
+        message: message,
+        type: 'yesNo',
+        callback: (confirmed) => {
+          if (confirmed) {
+            this.mergeAuthors(confirmed)
+          }
+        }
+      }
+      this.$store.commit('globals/setConfirmPrompt', payload)
+    },
+
+    /*    mergeAuthors(confirmed) {
+      this.$store.dispatch('libraries/mergeAuthors', confirmed)
+       },
+   Merge(){
+           const  playload = {
+            message: 'Discover similar authors xxx and xxx, do you want to merge then?',
+            type: 'yesNo',
+            callback: (confirmed) =>{
+              if(confirmed){
+
+              }
+            }
+          }
+          this.$store.commit('globals/setConfirmPrompt',playload)
+    },*/
     deleteClick() {
       const payload = {
         message: this.$getString('MessageConfirmDeleteLibrary', [this.library.name]),
