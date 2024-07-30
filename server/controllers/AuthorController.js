@@ -62,24 +62,6 @@ class AuthorController {
     return res.json(authorJson)
   }
 
-  async getAliases(req, res) {
-    try {
-      const author = await Database.authorModel.findByPk(req.params.id);
-      if (!author) {
-        return res.status(404).send('Author not found');
-      }
-
-      const aliases = await Database.aliasModel.findAll({
-        where: { authorId: author.id }
-      });
-
-      res.json(aliases);
-    } catch (error) {
-      console.error('Error fetching aliases:', error);
-      res.status(500).send('Internal server error');
-    }
-  }
-
   /**
    *
    * @param {import('express').Request} req
@@ -88,35 +70,6 @@ class AuthorController {
   async update(req, res) {
     const payload = req.body
     let hasUpdated = false
-
-    // Add aliases to the current author
-    if (payload.aliases) {
-      const existingAliases = await Database.aliasModel.findAll({
-        where: { authorId: req.author.id }
-      })
-      const existingAliasIds = existingAliases.map(alias => alias.id)
-
-      for (const newAlias of payload.aliases) {
-        if (existingAliasIds.includes(newAlias.id)) {
-          await Database.aliasModel.update(newAlias, {
-            where: { id: newAlias.id }
-          })
-        } else {
-          await Database.aliasModel.create({
-            ...newAlias,
-            authorId: req.author.id
-          })
-        }
-      }
-      hasUpdated = true;
-
-      const aliasToDelete = existingAliases.filter(alias => !payload.aliases.some(newAlias => newAlias.id === alias.id));
-      await Database.aliasModel.destroy({
-        where: { id: aliasToDelete.map(alias => alias.id) }
-      });
-
-    }
-
 
     // author imagePath must be set through other endpoints as of v2.4.5
     if (payload.imagePath !== undefined) {
@@ -248,10 +201,6 @@ class AuthorController {
     Logger.info(`[AuthorController] Removing author "${req.author.name}"`)
 
     await Database.authorModel.removeById(req.author.id)
-
-    await Database.aliasModel.destroy({
-      where: { authorId: req.author.id }
-    });
 
     if (req.author.imagePath) {
       await CacheManager.purgeImageCache(req.author.id) // Purge cache
@@ -407,6 +356,182 @@ class AuthorController {
       width: width ? parseInt(width) : null
     }
     return CacheManager.handleAuthorCache(res, author, options)
+  }
+
+  /**
+   * GET: /api/authors/:id/alias
+   *
+   * @param {import('express').Request} req
+   * @param {import('express').Response} res
+   */
+  async getAlias(req, res) {
+    try {
+      const author = await Database.authorModel.findByPk(req.params.id)
+      if (!author) {
+        return res.status(404).send('Author not found')
+      }
+
+      const relation = author.relation || {}
+      const aliases = relation.alias ? relation.alias.map(a => a.name) : []
+
+      res.json({ alias: aliases })
+    } catch (error) {
+      Logger.error(`[AuthorController] Error getting alias: ${error.message}`)
+      res.status(500).send('Internal Server Error')
+    }
+  }
+
+  /**
+   * POST: /api/authors/:id/alias
+   *
+   * @param {import('express').Request} req
+   * @param {import('express').Response} res
+   */
+  async addAlias(req, res) {
+    try {
+      const { name } = req.body
+      if (!name) {
+        return res.status(400).send('Missing name')
+      }
+
+      const author = await Database.authorModel.findByPk(req.params.id)
+      if (!author) {
+        return res.status(404).send('Author not found')
+      }
+
+      let relation = {}
+      if (typeof author.relation === 'string') {
+        try {
+          relation = JSON.parse(author.relation)
+        } catch (error) {
+          Logger.error(`[AuthorController] Error parsing relation: ${error.message}`)
+          return res.status(500).send('Internal Server Error')
+        }
+      } else {
+        relation = author.relation || {}
+      }
+
+      let aliases = relation.alias || []
+      const aliasExists = aliases.some(alias => alias.name === name)
+      if (aliasExists) {
+        return res.status(400).send('Alias already exists')
+      }
+
+      aliases.push({ name, bookId: "" })
+      relation.alias = aliases
+
+      author.relation = JSON.stringify(relation)
+      await author.save()
+
+      res.json({
+        alias: relation.alias
+      });
+    } catch (error) {
+      Logger.error(`[AuthorController] Error adding alias: ${error.message}`)
+      res.status(500).send('Internal Server Error')
+    }
+  }
+
+  /**
+   * PATCH: /api/authors/:id/alias
+   *
+   * @param {import('express').Request} req
+   * @param {import('express').Response} res
+   */
+  async updateAlias(req, res) {
+    try {
+      const { oldName, newName } = req.body
+      if (!oldName || !newName) {
+        return res.status(400).send('Missing oldName or newName')
+      }
+
+      const author = await Database.authorModel.findByPk(req.params.id)
+      if (!author) {
+        return res.status(404).send('Author not found')
+      }
+
+      let relation = {};
+      if (typeof author.relation === 'string') {
+        try {
+          relation = JSON.parse(author.relation);
+        } catch (error) {
+          Logger.error(`[AuthorController] Error parsing relation: ${error.message}`)
+          return res.status(500).send('Internal Server Error')
+        }
+      } else {
+        relation = author.relation || {}
+      }
+
+      let aliases = relation.alias || []
+      const index = aliases.findIndex(alias => alias.name === oldName)
+      if (index === -1) {
+        return res.status(404).send('Alias not found')
+      }
+
+      aliases[index].name = newName;
+      relation.alias = aliases;
+
+      author.relation = JSON.stringify(relation)
+      await author.save()
+
+      res.json({
+        alias: relation.alias
+      });
+    } catch (error) {
+      Logger.error(`[AuthorController] Error updating alias: ${error.message}`)
+      res.status(500).send('Internal Server Error')
+    }
+  }
+
+  /**
+   * DELETE: /api/authors/:id/alias
+   *
+   * @param {import('express').Request} req
+   * @param {import('express').Response} res
+   */
+  async deleteAlias(req, res) {
+    try {
+      const { name } = req.body
+      if (!name) {
+        return res.status(400).send('Missing name')
+      }
+
+      const author = await Database.authorModel.findByPk(req.params.id)
+      if (!author) {
+        return res.status(404).send('Author not found')
+      }
+
+      let relation = {}
+      if (typeof author.relation === 'string') {
+        try {
+          relation = JSON.parse(author.relation)
+        } catch (error) {
+          Logger.error(`[AuthorController] Error parsing relation: ${error.message}`)
+          return res.status(500).send('Internal Server Error')
+        }
+      } else {
+        relation = author.relation || {}
+      }
+
+      let aliases = relation.alias || []
+      const index = aliases.findIndex(alias => alias.name === name)
+      if (index === -1) {
+        return res.status(404).send('Alias not found')
+      }
+
+      aliases.splice(index, 1)
+      relation.alias = aliases
+
+      author.relation = JSON.stringify(relation)
+      await author.save()
+
+      res.json({
+        alias: relation.alias
+      });
+    } catch (error) {
+      Logger.error(`[AuthorController] Error deleting alias: ${error.message}`)
+      res.status(500).send('Internal Server Error')
+    }
   }
 
   async middleware(req, res, next) {

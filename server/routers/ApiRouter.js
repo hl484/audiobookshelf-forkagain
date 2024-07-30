@@ -214,8 +214,10 @@ class ApiRouter {
     this.router.get('/authors/:id/image', AuthorController.middleware.bind(this), AuthorController.getImage.bind(this))
     this.router.post('/authors/:id/image', AuthorController.middleware.bind(this), AuthorController.uploadImage.bind(this))
     this.router.delete('/authors/:id/image', AuthorController.middleware.bind(this), AuthorController.deleteImage.bind(this))
-
-    this.router.get('/authors/:id/aliases', AuthorController.middleware.bind(this), AuthorController.getAliases.bind(this))
+    this.router.get('/authors/:id/alias', AuthorController.middleware.bind(this), AuthorController.getAlias.bind(this))
+    this.router.post('/authors/:id/alias', AuthorController.middleware.bind(this), AuthorController.addAlias.bind(this))
+    this.router.patch('/authors/:id/alias', AuthorController.middleware.bind(this), AuthorController.updateAlias.bind(this))
+    this.router.delete('/authors/:id/alias', AuthorController.middleware.bind(this), AuthorController.deleteAlias.bind(this))
 
     //
     // Series Routes
