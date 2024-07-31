@@ -1,6 +1,7 @@
-const { DataTypes, Model, where, fn, col } = require('sequelize')
+const { DataTypes, Model, where, Op, fn, col } = require('sequelize')
 
 const oldAuthor = require('../objects/entities/Author')
+const { sequelize } = require('../Database')
 
 class Author extends Model {
   constructor(values, options) {
@@ -24,6 +25,8 @@ class Author extends Model {
     this.updatedAt
     /** @type {Date} */
     this.createdAt
+    /** @type {JSON} */
+    this.relation
   }
 
   getOldAuthor() {
@@ -35,7 +38,8 @@ class Author extends Model {
       imagePath: this.imagePath,
       libraryId: this.libraryId,
       addedAt: this.createdAt.valueOf(),
-      updatedAt: this.updatedAt.valueOf()
+      updatedAt: this.updatedAt.valueOf(),
+      relation: this.relation
     })
   }
 
@@ -66,7 +70,8 @@ class Author extends Model {
       asin: oldAuthor.asin,
       description: oldAuthor.description,
       imagePath: oldAuthor.imagePath,
-      libraryId: oldAuthor.libraryId
+      libraryId: oldAuthor.libraryId,
+      relation: oldAuthor.relation
     }
   }
 
@@ -118,6 +123,23 @@ class Author extends Model {
       })
     )?.getOldAuthor()
     return author
+  }
+  /**
+   * Get author by penName in relation field. Case insensitive
+   *
+   * @param {string} penName
+   * @param {string} libraryId
+   * @returns {Promise<Author>}
+   */
+  static async getOldByPenNameAndLibrary(authorPenName, libraryId) {
+    const authors = await this.findAll({
+      where: {
+        libraryId,
+        [Op.and]: sequelize.literal(`json_extract(lower(relation), '$.alians.${authorPenName.toLowerCase()}') IS NOT NULL`)
+      }
+    })
+
+    return authors.map((author) => author.getOldAuthor())
   }
 
   /**
@@ -180,7 +202,8 @@ class Author extends Model {
         lastFirst: DataTypes.STRING,
         asin: DataTypes.STRING,
         description: DataTypes.TEXT,
-        imagePath: DataTypes.STRING
+        imagePath: DataTypes.STRING,
+        relation: DataTypes.JSON
       },
       {
         sequelize,

@@ -44,7 +44,8 @@ export default {
     return {
       mouseover: false,
       isDeleting: false,
-      showMobileMenu: false
+      showMobileMenu: false,
+      penNameConfirmation: []
     }
   },
   computed: {
@@ -128,27 +129,35 @@ export default {
       this.$emit('edit', this.library)
     },
     scan(force = false) {
-      this.Merge()
       this.$store
         .dispatch('libraries/requestLibraryScan', { libraryId: this.library.id, force })
-        .then(() => {
+        .then((response) => {
           // this.$toast.success(this.$strings.ToastLibraryScanStarted)
+          this.penNameConfirmation = response
+          if (Array.isArray(this.penNameConfirmation) && this.penNameConfirmation.length > 0) {
+            this.Merge(this.penNameConfirmation)
+          }
         })
         .catch((error) => {
           console.error('Failed to start scan', error)
           this.$toast.error(this.$strings.ToastLibraryScanFailedToStart)
         })
     },
-    Merge() {
-      const payload = {
-        message: 'Discover similar authors xxx and xxx, do you want to merge them?',
-        type: 'yesNo',
-        callback: (confirmed) => {
-          if (confirmed) {
+    Merge(penNameConfirmation) {
+      for (const item of penNameConfirmation) {
+        console.log('Book', item)
+        const payload = {
+          message: "The author '" + item.authorName + "' of book '" + item.bookTitle + "' seems to be a pseudonym of the existing author '" + item.possibleAuthorName + "', do you want to merge them?",
+          type: 'yesNo',
+          callback: (confirmed) => {
+            if (confirmed) {
+              const updatePayload = { name: item.possibleAuthorName }
+              this.$axios.$patch(`/api/authors/${item.authorId}`, updatePayload)
+            }
           }
         }
+        this.$store.commit('globals/setConfirmPrompt', payload)
       }
-      this.$store.commit('globals/setConfirmPrompt', payload)
     },
     deleteClick() {
       const payload = {

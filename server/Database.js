@@ -704,7 +704,23 @@ class Database {
     if (!this.libraryFilterData[libraryId]) {
       return (await this.authorModel.getOldByNameAndLibrary(authorName, libraryId))?.id || null
     }
-    return this.libraryFilterData[libraryId].authors.find((au) => au.name === authorName)?.id || null
+    return this.libraryFilterData[libraryId].authors.find((au) => au.name.replace(/[\s.]+/g, '').toLowerCase() === authorName.replace(/[\s.]+/g, '').toLowerCase())?.id || null
+  }
+  async getAuthorIdByPenName(libraryId, authorPenName) {
+    const authors = await this.authorModel.getOldByPenNameAndLibrary(authorPenName, libraryId)
+    //console.debug('Checking author:', authors)
+    if (authors.length > 0) {
+      return { id: authors[0].id, name: authors[0].name }
+    }
+    return null
+    // Flatten the list of aliases and check each one
+    // for (const author of this.libraryFilterData[libraryId].authors) {
+    //   console.debug('Checking author:', author)
+    //   if (author.relation?.aliases?.some((alias) => alias.replace(/[\s.]+/g, '').toLowerCase() === authorPenName.replace(/[\s.]+/g, '').toLowerCase())) {
+    //     return { id: author.id, name: author.name }
+    //   }
+    // }
+    // return null
   }
 
   /**
