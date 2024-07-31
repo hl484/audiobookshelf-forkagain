@@ -819,5 +819,6 @@
   "ToastSortingPrefixesUpdateFailed": "无法更新排序前缀",
   "ToastSortingPrefixesUpdateSuccess": "排序前缀已更新 ({0} 项)",
   "ToastUserDeleteFailed": "删除用户失败",
-  "ToastUserDeleteSuccess": "用户已删除"
+  "ToastUserDeleteSuccess": "用户已删除",
+  "MessageConfirmMergeAuthors": "发现相似的作者 {0}，你想合并他们吗？"
 }

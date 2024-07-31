@@ -820,5 +820,6 @@
   "ToastSortingPrefixesUpdateFailed": "Failed to update sorting prefixes",
   "ToastSortingPrefixesUpdateSuccess": "Sorting prefixes updated ({0} items)",
   "ToastUserDeleteFailed": "Verwijderen gebruiker mislukt",
-  "ToastUserDeleteSuccess": "Gebruiker verwijderd"
+  "ToastUserDeleteSuccess": "Gebruiker verwijderd",
+  "MessageConfirmMergeAuthors": "Ontdek vergelijkbare auteurs {0}, wil je ze samenvoegen?"
 }

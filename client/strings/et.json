@@ -817,5 +817,6 @@
   "ToastSortingPrefixesUpdateFailed": "Failed to update sorting prefixes",
   "ToastSortingPrefixesUpdateSuccess": "Sorting prefixes updated ({0} items)",
   "ToastUserDeleteFailed": "Kasutaja kustutamine ebaõnnestus",
-  "ToastUserDeleteSuccess": "Kasutaja kustutatud"
+  "ToastUserDeleteSuccess": "Kasutaja kustutatud",
+  "MessageConfirmMergeAuthors": "Avastage sarnased autorid {0}, kas soovite need ühendada?"
 }

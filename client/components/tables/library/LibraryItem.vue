@@ -148,7 +148,8 @@ export default {
       this.$store.dispatch('libraries/mergeAuthors', confirmed)
     },
     merge(duplicateAuthors) {
-      const message = `Discover similar authors ${duplicateAuthors.map((author) => author.name).join(' and ')}, do you want to merge them?`
+      const authorNames = duplicateAuthors.map((author) => author.name).join(' and ')
+      const message = this.$getString('MessageConfirmMergeAuthors', [authorNames])
       const payload = {
         message: message,
         type: 'yesNo',

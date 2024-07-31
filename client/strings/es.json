@@ -846,5 +846,6 @@
   "ToastSortingPrefixesUpdateFailed": "Error al actualizar los prefijos de ordenar",
   "ToastSortingPrefixesUpdateSuccess": "Prefijos de ordenar actualizaron ({0} items)",
   "ToastUserDeleteFailed": "Error al eliminar el usuario",
-  "ToastUserDeleteSuccess": "Usuario eliminado"
+  "ToastUserDeleteSuccess": "Usuario eliminado",
+  "MessageConfirmMergeAuthors": "Descubre autores similares {0}, ¿quieres fusionarlos?"
 }

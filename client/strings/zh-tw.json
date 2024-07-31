@@ -817,5 +817,6 @@
   "ToastSortingPrefixesUpdateFailed": "Failed to update sorting prefixes",
   "ToastSortingPrefixesUpdateSuccess": "Sorting prefixes updated ({0} items)",
   "ToastUserDeleteFailed": "刪除使用者失敗",
-  "ToastUserDeleteSuccess": "使用者已刪除"
+  "ToastUserDeleteSuccess": "使用者已刪除",
+  "MessageConfirmMergeAuthors": "發現相似的作者 {0}，你想合併他們嗎？"
 }
