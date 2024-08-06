@@ -30,6 +30,21 @@
                 <ui-text-input-with-label v-model="authorCopy.asin" :disabled="processing" label="ASIN" />
               </div>
             </div>
+            <!-- add pen name column -->
+            <!-- <div class="flex">
+              <div class="w-3/4 p-2">
+                <ui-text-input-with-label v-model="authorCopy.alias" :disabled="processing" :label="$strings.Labelalias" />
+              </div>
+            </div> -->
+            <!-- test alias column -->
+            <div v-for="(aliasItem, index) in authorCopy.alias" :key="aliasItem.id" class="flex items-center mb-2">
+              <div class="w-3/4 p-2">
+                <ui-text-input-with-label v-model="authorCopy.alias[index].name" :disabled="processing" :label="$strings.Labelalias" />
+              </div>
+              <ui-btn small color="error" type="button" @click="removealias(index)">{{ $strings.ButtonRemove }}</ui-btn>
+            </div>
+
+            <!--test -->
             <div class="p-2">
               <ui-textarea-with-label v-model="authorCopy.description" :disabled="processing" :label="$strings.LabelDescription" :rows="8" />
             </div>
@@ -37,6 +52,9 @@
             <div class="flex pt-2 px-2">
               <ui-btn v-if="userCanDelete" small color="error" type="button" @click.stop="removeClick">{{ $strings.ButtonRemove }}</ui-btn>
               <div class="flex-grow" />
+              <!-- Add Alias Button -->
+              <ui-btn type="button" class="mx-2" @click="addalias">{{ $strings.ButtonAddAlias }}</ui-btn>
+
               <ui-btn type="button" class="mx-2" @click="searchAuthor">{{ $strings.ButtonQuickMatch }}</ui-btn>
 
               <ui-btn type="submit">{{ $strings.ButtonSave }}</ui-btn>
@@ -55,6 +73,7 @@ export default {
       authorCopy: {
         name: '',
         asin: '',
+        alias: [],
         description: ''
       },
       imageUrl: '',
@@ -104,8 +123,18 @@ export default {
     init() {
       this.imageUrl = ''
       this.authorCopy = {
-        ...this.author
+        ...this.author,
+        // alias: this.author.alias || ''
+        alias: Array.isArray(this.author.alias) ? this.author.alias : []
       }
+      console.log('Initialized authorCopy:', this.authorCopy)
+    },
+    addalias() {
+      const newAlias = { id: Date.now().toString(), name: '' } //
+      this.authorCopy.alias.push(newAlias) // add alias method
+    },
+    removealias(index) {
+      this.authorCopy.alias.splice(index, 1) // delete alias method in a array
     },
     removeClick() {
       const payload = {
@@ -114,7 +143,7 @@ export default {
           if (confirmed) {
             this.processing = true
             this.$axios
-              .$delete(`/api/authors/${this.authorId}`)
+              .$delete(/api/authors/${this.authorId})
               .then(() => {
                 this.$toast.success('Author removed')
                 this.show = false
@@ -132,8 +161,9 @@ export default {
       }
       this.$store.commit('globals/setConfirmPrompt', payload)
     },
+
     async submitForm() {
-      var keysToCheck = ['name', 'asin', 'description']
+      var keysToCheck = ['name', 'asin', 'description', 'alias']
       var updatePayload = {}
       keysToCheck.forEach((key) => {
         if (this.authorCopy[key] !== this.author[key]) {
@@ -145,7 +175,7 @@ export default {
         return
       }
       this.processing = true
-      var result = await this.$axios.$patch(`/api/authors/${this.authorId}`, updatePayload).catch((error) => {
+      var result = await this.$axios.$patch(/api/authors/${this.authorId}, updatePayload).catch((error) => {
         console.error('Failed', error)
         const errorMsg = error.response ? error.response.data : null
         this.$toast.error(errorMsg || this.$strings.ToastAuthorUpdateFailed)
@@ -165,7 +195,7 @@ export default {
     removeCover() {
       this.processing = true
       this.$axios
-        .$delete(`/api/authors/${this.authorId}/image`)
+        .$delete(/api/authors/${this.authorId}/image)
         .then((data) => {
           this.$toast.success(this.$strings.ToastAuthorImageRemoveSuccess)
 
@@ -191,7 +221,7 @@ export default {
         url: this.imageUrl
       }
       this.$axios
-        .$post(`/api/authors/${this.authorId}/image`, updatePayload)
+        .$post(/api/authors/${this.authorId}/image, updatePayload)
         .then((data) => {
           this.imageUrl = ''
           this.$toast.success('Author image updated')
@@ -223,7 +253,7 @@ export default {
         payload.region = this.libraryProvider.split('.').pop() || 'us'
       }
 
-      var response = await this.$axios.$post(`/api/authors/${this.authorId}/match`, payload).catch((error) => {
+      var response = await this.$axios.$post(/api/authors/${this.authorId}/match, payload).catch((error) => {
         console.error('Failed', error)
         return null
       })
@@ -241,7 +271,24 @@ export default {
         this.$toast.info('No updates were made for Author')
       }
       this.processing = false
+    },
+
+
+    async fetchAuthorData() {
+      this.processing = true
+      try {
+        const response = await this.$axios.$get(`/api/authors/${this.authorId}`)
+        this.$toast.success('Author data fetched successfully')
+      } catch (error) {
+        console.error('Failed to fetch author data', error)
+        this.$toast.error('Failed to fetch author data')
+      } finally {
+        this.processing = false
+      }
     }
+
+
+
   },
   mounted() {},
   beforeDestroy() {}
