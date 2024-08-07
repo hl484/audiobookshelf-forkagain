@@ -10,6 +10,7 @@
         </template>
       </div>
     </div>
+    <!-- 引入 editModal 组件 -->
     <edit-modal />
   </div>
 </template>
@@ -64,7 +65,7 @@ export default {
         if (typeof a[sortProp] === 'number' && typeof b[sortProp] === 'number') {
           return a[sortProp] > b[sortProp] ? bDesc : -bDesc
         }
-        return a[sortProp]?.localeCompare(b[sortProp], undefined, { sensitivity: 'base' }) * bDesc
+        return a[sortProp].localeCompare(b[sortProp], undefined, { sensitivity: 'base' }) * bDesc
       })
     }
   },
