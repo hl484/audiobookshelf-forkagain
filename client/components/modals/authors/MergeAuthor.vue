@@ -20,9 +20,7 @@
             <ui-text-input v-model="imageUrl" :placeholder="$strings.LabelImageURLFromTheWeb" class="h-9 w-full" />
             <ui-btn color="success" type="submit" :padding-x="4" :disabled="!imageUrl" class="ml-2 sm:ml-3 w-24 h-9">{{ $strings.ButtonSubmit }}</ui-btn>
           </form>
-          <!-- add some test -->
-
-          <!-- add some test -->
+          <!-- Existing form elements -->
           <form v-if="author" @submit.prevent="submitForm">
             <div class="flex">
               <div class="w-3/4 p-2">
@@ -32,13 +30,7 @@
                 <ui-text-input-with-label v-model="authorCopy.asin" :disabled="processing" label="ASIN" />
               </div>
             </div>
-            <!-- add pen name column -->
-            <!-- <div class="flex">
-              <div class="w-3/4 p-2">
-                <ui-text-input-with-label v-model="authorCopy.alias" :disabled="processing" :label="$strings.Labelalias" />
-              </div>
-            </div> -->
-            <!-- test alias column -->
+            <!-- Pen name column -->
             <div v-for="(aliasItem, index) in authorCopy.alias" :key="aliasItem.id" class="flex items-center mb-2">
               <div class="w-3/4 p-2">
                 <ui-text-input-with-label v-model="authorCopy.alias[index].name" :disabled="processing" :label="$strings.Labelalias" />
@@ -46,9 +38,23 @@
               <ui-btn small color="error" type="button" @click="removealias(index)">{{ $strings.ButtonRemove }}</ui-btn>
             </div>
 
-            <!--test -->
+            <!-- Description field -->
             <div class="p-2">
               <ui-textarea-with-label v-model="authorCopy.description" :disabled="processing" :label="$strings.LabelDescription" :rows="8" />
+            </div>
+
+            <!-- Merge Cards Section -->
+            <div v-if="showMergeOptions" class="mt-4">
+              <p class="text-lg font-semibold mb-2">{{ $strings.LabelMergeOptions }}</p>
+              <div class="flex flex-wrap gap-4">
+                <div v-for="(card, index) in mergeCards" :key="index" class="w-1/3 p-2 border border-gray-300 rounded-lg shadow-md">
+                  <div class="p-2">
+                    <p class="text-lg font-medium">{{ card.name }}</p>
+                    <p class="text-sm text-gray-600">{{ card.description }}</p>
+                    <ui-btn type="button" class="mt-2 w-full" @click="mergeAuthor(card.id)">{{ $strings.ButtonMerge }}</ui-btn>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div class="flex pt-2 px-2">

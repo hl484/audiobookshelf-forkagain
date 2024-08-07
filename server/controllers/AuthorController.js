@@ -411,7 +411,7 @@ class AuthorController {
         return res.status(404).send('Author not found')
       }
 
-      let relation = {};
+      let relation = {}
       if (typeof author.relation === 'string') {
         try {
           relation = JSON.parse(author.relation)
@@ -428,15 +428,15 @@ class AuthorController {
         return res.status(400).send('Alias already exists')
       }
 
-      aliases[name] = { bookId: bookId || "" }
-      relation.alias = aliases;
+      aliases[name] = { bookId: bookId || '' }
+      relation.alias = aliases
 
       author.relation = JSON.stringify(relation)
-      await author.save();
+      await author.save()
 
       res.json({
         alias: relation.alias
-      });
+      })
     } catch (error) {
       Logger.error(`[AuthorController] Error adding alias: ${error.message}`)
       res.status(500).send('Internal Server Error')
@@ -482,8 +482,8 @@ class AuthorController {
         return res.status(400).send('Alias already exists')
       }
 
-      delete aliases[oldName];
-      aliases[newName] = { bookId: bookId || "" }
+      delete aliases[oldName]
+      aliases[newName] = { bookId: bookId || '' }
 
       relation.alias = aliases
       author.relation = JSON.stringify(relation)
@@ -491,7 +491,7 @@ class AuthorController {
 
       res.json({
         alias: relation.alias
-      });
+      })
     } catch (error) {
       Logger.error(`[AuthorController] Error updating alias: ${error.message}`)
       res.status(500).send('Internal Server Error')
@@ -541,13 +541,12 @@ class AuthorController {
 
       res.json({
         alias: relation.alias
-      });
+      })
     } catch (error) {
       Logger.error(`[AuthorController] Error deleting alias: ${error.message}`)
       res.status(500).send('Internal Server Error')
     }
   }
-
 
   async middleware(req, res, next) {
     const author = await Database.authorModel.getOldById(req.params.id)
