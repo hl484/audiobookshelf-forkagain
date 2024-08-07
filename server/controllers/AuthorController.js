@@ -548,7 +548,6 @@ class AuthorController {
     }
   }
 
-
   async middleware(req, res, next) {
     const author = await Database.authorModel.getOldById(req.params.id)
     if (!author) return res.sendStatus(404)
