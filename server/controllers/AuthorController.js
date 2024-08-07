@@ -16,7 +16,11 @@ const naturalSort = createNewSortInstance({
 })
 class AuthorController {
   constructor() {}
-
+  // async getAuthor(req, res) {
+  //   const { libraryId, name } = req.body.params
+  //   const authorJson = await Database.getAuthorIdByName(libraryId, name)
+  //   res.json(authorJson)
+  // }
   async findOne(req, res) {
     const include = (req.query.include || '').split(',')
 
