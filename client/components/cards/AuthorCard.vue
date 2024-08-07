@@ -5,13 +5,12 @@
         <div cy-id="imageArea" :style="{ height: cardHeight + 'px' }" class="bg-primary box-shadow-book rounded-md relative overflow-hidden">
           <!-- Image or placeholder -->
           <covers-author-image :author="author" />
-          <input type="checkbox" @click="selectInfo('image', author.imagePath)" />
+
           <!-- Author name & num books overlay -->
-          <!--添加 @click 事件-->
+
           <div cy-id="textInline" v-show="!searching && !nameBelow" class="absolute bottom-0 left-0 w-full py-1e bg-black bg-opacity-60 px-2e">
-            <input type="checkbox" @click="selectInfo('name', author.name)" />
             <p class="text-center font-semibold truncate" :style="{ fontSize: 0.75 + 'em' }">{{ name }}</p>
-            <input type="checkbox" @click="selectInfo('numBooks', author.numBooks)" />
+
             <p class="text-center text-gray-200" :style="{ fontSize: 0.65 + 'em' }">{{ numBooks }} {{ $strings.LabelBooks }}</p>
           </div>
 
@@ -133,10 +132,7 @@ export default {
       }
       this.searching = false
     },
-    // 添加的 selectInfo 方法
-    selectInfo(key, value) {
-      this.$emit('select', { key, value })
-    },
+
     setSearching(isSearching) {
       this.searching = isSearching
     }
