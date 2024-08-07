@@ -819,5 +819,6 @@
   "ToastSortingPrefixesUpdateFailed": "Impossibile aggiornare i prefissi di ordinamento",
   "ToastSortingPrefixesUpdateSuccess": "Prefissi di ordinamento aggiornati ({0} items)",
   "ToastUserDeleteFailed": "Errore eliminazione utente",
-  "ToastUserDeleteSuccess": "Utente eliminato"
+  "ToastUserDeleteSuccess": "Utente eliminato",
+  "MessageConfirmMergeAuthors": "Atraskite panašius autorius {0}, ar norite juos sujungti?"
 }

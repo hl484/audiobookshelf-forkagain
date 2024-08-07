@@ -817,5 +817,6 @@
   "ToastSortingPrefixesUpdateFailed": "Nepodařilo se aktualizovat třídicí předpony",
   "ToastSortingPrefixesUpdateSuccess": "Aktualizovány předpony třídění ({0} položek)",
   "ToastUserDeleteFailed": "Nepodařilo se smazat uživatele",
-  "ToastUserDeleteSuccess": "Uživatel smazán"
+  "ToastUserDeleteSuccess": "Uživatel smazán",
+  "MessageConfirmMergeAuthors": "Objevte podobné autory {0}, chcete je sloučit?"
 }

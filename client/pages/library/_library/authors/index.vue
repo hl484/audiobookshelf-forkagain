@@ -10,6 +10,7 @@
         </template>
       </div>
     </div>
+    <edit-modal />
   </div>
 </template>
 
@@ -95,7 +96,24 @@ export default {
       this.authors = this.authors.filter((au) => au.id !== author.id)
     },
     editAuthor(author) {
-      this.$store.commit('globals/showEditAuthorModal', author)
+      this.confirmMerge(() => {
+        this.$store.commit('globals/showEditAuthorModal', author)
+      })
+    },
+    confirmMerge(callback) {
+      const payload = {
+        message: 'Discover similar authors xxx and xxx, do you want to merge them?',
+        type: 'yesNo',
+        callback: (confirmed) => {
+          if (confirmed) {
+            console.log('Authors merged')
+          }
+          if (typeof callback === 'function') {
+            callback()
+          }
+        }
+      }
+      this.$store.commit('globals/setConfirmPrompt', payload)
     }
   },
   mounted() {

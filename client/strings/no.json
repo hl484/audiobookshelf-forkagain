@@ -819,5 +819,6 @@
   "ToastSortingPrefixesUpdateFailed": "Failed to update sorting prefixes",
   "ToastSortingPrefixesUpdateSuccess": "Sorting prefixes updated ({0} items)",
   "ToastUserDeleteFailed": "Misslykkes å slette bruker",
-  "ToastUserDeleteSuccess": "Bruker slettet"
+  "ToastUserDeleteSuccess": "Bruker slettet",
+  "MessageConfirmMergeAuthors": "Oppdag lignende forfattere {0}, vil du slå dem sammen?"
 }

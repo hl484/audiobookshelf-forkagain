@@ -817,5 +817,6 @@
   "ToastSortingPrefixesUpdateFailed": "Falha ao atualizar prefixos de ordenação",
   "ToastSortingPrefixesUpdateSuccess": "Prefixos de ordenação atualizados ({0} item(ns))",
   "ToastUserDeleteFailed": "Falha ao apagar usuário",
-  "ToastUserDeleteSuccess": "Usuário apagado"
+  "ToastUserDeleteSuccess": "Usuário apagado",
+  "MessageConfirmMergeAuthors": "Descubra autores semelhantes {0}, você quer mesclá-los?"
 }

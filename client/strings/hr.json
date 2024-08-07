@@ -817,5 +817,6 @@
   "ToastSortingPrefixesUpdateFailed": "Failed to update sorting prefixes",
   "ToastSortingPrefixesUpdateSuccess": "Sorting prefixes updated ({0} items)",
   "ToastUserDeleteFailed": "Neuspješno brisanje korisnika",
-  "ToastUserDeleteSuccess": "Korisnik obrisan"
+  "ToastUserDeleteSuccess": "Korisnik obrisan",
+  "MessageConfirmMergeAuthors": "Otkrijte slične autore {0}, želite li ih spojiti?"
 }

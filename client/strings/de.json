@@ -846,5 +846,6 @@
   "ToastSortingPrefixesUpdateFailed": "Update der Sortier-Prefixe ist fehlgeschlagen",
   "ToastSortingPrefixesUpdateSuccess": "Die Sortier-Prefixe wirden geupdated ({0} Einträge)",
   "ToastUserDeleteFailed": "Benutzer konnte nicht gelöscht werden",
-  "ToastUserDeleteSuccess": "Benutzer gelöscht"
+  "ToastUserDeleteSuccess": "Benutzer gelöscht",
+  "MessageConfirmMergeAuthors": "Ähnliche Autoren entdecken {0}, möchten Sie sie zusammenführen?"
 }
