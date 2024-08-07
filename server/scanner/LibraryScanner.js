@@ -47,9 +47,9 @@ class LibraryScanner {
    *
    * @param {import('../objects/Library')} library
    * @param {boolean} [forceRescan]
-   * @param {Array} penNameConfirmation
+   * @param {id} userId
    */
-  async scan(library, forceRescan = false, penNameConfirmation) {
+  async scan(library, forceRescan = false, userId) {
     if (this.isLibraryScanning(library.id)) {
       Logger.error(`[LibraryScanner] Already scanning ${library.id}`)
       return
@@ -80,7 +80,7 @@ class LibraryScanner {
 
     Logger.info(`[LibraryScanner] Starting${forceRescan ? ' (forced)' : ''} library scan ${libraryScan.id} for ${libraryScan.libraryName}`)
 
-    const canceled = await this.scanLibrary(libraryScan, forceRescan, penNameConfirmation)
+    const canceled = await this.scanLibrary(libraryScan, forceRescan, userId)
 
     if (canceled) {
       Logger.info(`[LibraryScanner] Library scan canceled for "${libraryScan.libraryName}"`)
@@ -122,7 +122,7 @@ class LibraryScanner {
    * @param {boolean} forceRescan
    * @returns {Promise<boolean>} true if scan canceled
    */
-  async scanLibrary(libraryScan, forceRescan, penNameConfirmation) {
+  async scanLibrary(libraryScan, forceRescan, userId) {
     // Make sure library filter data is set
     //   this is used to check for existing authors & series
     await libraryFilters.getFilterData(libraryScan.library.mediaType, libraryScan.libraryId)
@@ -251,7 +251,7 @@ class LibraryScanner {
     if (libraryItemDataFound.length) {
       let newOldLibraryItems = []
       for (const libraryItemData of libraryItemDataFound) {
-        const newLibraryItem = await LibraryItemScanner.scanNewLibraryItem(libraryItemData, libraryScan.library.settings, libraryScan, penNameConfirmation)
+        const newLibraryItem = await LibraryItemScanner.scanNewLibraryItem(libraryItemData, libraryScan.library.settings, libraryScan, userId)
         if (newLibraryItem) {
           const oldLibraryItem = Database.libraryItemModel.getOldLibraryItem(newLibraryItem)
           newOldLibraryItems.push(oldLibraryItem)

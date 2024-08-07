@@ -21,6 +21,7 @@ const OpfFileScanner = require('./OpfFileScanner')
 const NfoFileScanner = require('./NfoFileScanner')
 const AbsMetadataFileScanner = require('./AbsMetadataFileScanner')
 const EBookFile = require('../objects/files/EBookFile')
+const User = require('../models/User')
 
 /**
  * Metadata for books pulled from files
@@ -437,7 +438,7 @@ class BookScanner {
    * @param {LibraryScan} libraryScan
    * @returns {Promise<import('../models/LibraryItem')>}
    */
-  async scanNewBookLibraryItem(libraryItemData, librarySettings, libraryScan, penNameConfirmation) {
+  async scanNewBookLibraryItem(libraryItemData, librarySettings, libraryScan, userId) {
     // Scan audio files found
     let scannedAudioFiles = await AudioFileScanner.executeMediaFileScans(libraryItemData.mediaType, libraryItemData, libraryItemData.audioLibraryFiles)
     scannedAudioFiles = AudioFileScanner.runSmartTrackOrder(libraryItemData.relPath, scannedAudioFiles)
@@ -472,11 +473,33 @@ class BookScanner {
       bookAuthors: [],
       bookSeries: []
     }
-    const newAuthors = []
+    //const newAuthors = []
     if (bookMetadata.authors.length) {
       for (const authorName of bookMetadata.authors) {
-        const matchingAuthorId = await Database.getAuthorIdByName(libraryItemData.libraryId, authorName.replace(/\s+/g, '').toLowerCase()) //Query the standardized author name
-        const matchingPenAuthor = await Database.getAuthorIdByPenName(libraryItemData.libraryId, authorName.replace(/\s+/g, '').toLowerCase())
+        const matchingAuthorId = await Database.getAuthorIdByName(libraryItemData.libraryId, authorName) //Query the standardized author name
+        const alias = await Database.getAuthorAliasIdByName(libraryItemData.libraryId, authorName)
+        //const matchingPenAuthor = await Database.getAuthorIdByPenName(libraryItemData.libraryId, authorName.replace(/\s+/g, '').toLowerCase())
+        //console.debug(alias)
+
+        if (alias === null || alias.length === 0) {
+          //console.debug('no match')
+        } else {
+          const newNotification = {
+            time: new Date().toISOString(),
+            category: 'merge',
+            bookTitle: bookMetadata.title,
+            authorName: authorName,
+            alias: alias
+          }
+
+          const dbUser = await Database.userModel.getUserById(userId)
+          if (dbUser.notifications === null) {
+            dbUser.notifications = []
+          }
+          dbUser.notifications.push(newNotification)
+          await Database.userModel.updateFromOld(dbUser)
+        }
+
         if (matchingAuthorId) {
           bookObject.bookAuthors.push({
             authorId: matchingAuthorId
@@ -490,20 +513,20 @@ class BookScanner {
               lastFirst: parseNameString.nameToLastFirst(authorName) //Standardize author names
             }
           })
-          if (matchingPenAuthor) {
-            penNameConfirmation.push({
-              bookTitle: bookMetadata.title,
-              authorName: authorName,
-              libraryId: libraryItemData.libraryId,
-              possibleAuthorId: matchingPenAuthor.id,
-              possibleAuthorName: matchingPenAuthor.name
-            })
-            newAuthors.push({
-              libraryId: libraryItemData.libraryId,
-              name: authorName,
-              lastFirst: parseNameString.nameToLastFirst(authorName)
-            })
-          }
+          // if (matchingPenAuthor) {
+          //   penNameConfirmation.push({
+          //     bookTitle: bookMetadata.title,
+          //     authorName: authorName,
+          //     libraryId: libraryItemData.libraryId,
+          //     possibleAuthorId: matchingPenAuthor.id,
+          //     possibleAuthorName: matchingPenAuthor.name
+          //   })
+          //   newAuthors.push({
+          //     libraryId: libraryItemData.libraryId,
+          //     name: authorName,
+          //     lastFirst: parseNameString.nameToLastFirst(authorName)
+          //   })
+          // }
         }
       }
     }
@@ -633,14 +656,14 @@ class BookScanner {
       libraryItem.changed('libraryFiles', true)
       await libraryItem.save()
     }
-    for (const newAuthor of newAuthors) {
-      const newAuthorId = await Database.getAuthorIdByName(newAuthor.libraryId, newAuthor.name)
-      for (const penNameItem of penNameConfirmation) {
-        if (penNameItem.authorName === newAuthor.name) {
-          penNameItem.authorId = newAuthorId
-        }
-      }
-    }
+    // for (const newAuthor of newAuthors) {
+    //   const newAuthorId = await Database.getAuthorIdByName(newAuthor.libraryId, newAuthor.name)
+    //   for (const penNameItem of penNameConfirmation) {
+    //     if (penNameItem.authorName === newAuthor.name) {
+    //       penNameItem.authorId = newAuthorId
+    //     }
+    //   }
+    // }
     return libraryItem
   }
 

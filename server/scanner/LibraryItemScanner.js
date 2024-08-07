@@ -174,10 +174,10 @@ class LibraryItemScanner {
    * @param {LibraryScan} libraryScan
    * @returns {Promise<LibraryItem>}
    */
-  async scanNewLibraryItem(libraryItemData, librarySettings, libraryScan, penNameConfirmation) {
+  async scanNewLibraryItem(libraryItemData, librarySettings, libraryScan, userId) {
     let newLibraryItem = null
     if (libraryItemData.mediaType === 'book') {
-      newLibraryItem = await BookScanner.scanNewBookLibraryItem(libraryItemData, librarySettings, libraryScan, penNameConfirmation)
+      newLibraryItem = await BookScanner.scanNewBookLibraryItem(libraryItemData, librarySettings, libraryScan, userId)
     } else {
       newLibraryItem = await PodcastScanner.scanNewPodcastLibraryItem(libraryItemData, librarySettings, libraryScan)
     }
