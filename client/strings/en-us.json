@@ -848,5 +848,10 @@
   "ToastSortingPrefixesUpdateSuccess": "Sorting prefixes updated ({0} items)",
   "ToastUserDeleteFailed": "Failed to delete user",
   "ToastUserDeleteSuccess": "User deleted",
-  "MessageConfirmMergeAuthors": "Discover similar authors {0}, do you want to merge them?"
+  "MessageConfirmMergeAuthors": "Discover similar authors {0}, do you want to merge them?",
+  "ButtonNotifications": "Notifications",
+  "NotificationTitle": "Similar Authors Detected",
+  "NotificationMessage": "The following authors are detected as similar. Do you want to merge them?",
+  "Merge": "Merge",
+  "Cancel": "Cancel"
 }
