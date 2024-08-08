@@ -31,6 +31,12 @@
               <div class="flex-grow p-2">
                 <ui-text-input-with-label v-model="authorCopy.asin" :disabled="processing" label="ASIN" />
               </div>
+              <!-- Alias Data Section -->
+              <div class="w-3/4 p-2">
+                <h3 class="text-lg font-bold">Alias Data</h3>
+                <pre>{{ authorCopy.alias }}</pre>
+              </div>
+              <!-- Alias Data Section -->
             </div>
             <!-- add pen name column -->
             <!-- <div class="flex">
