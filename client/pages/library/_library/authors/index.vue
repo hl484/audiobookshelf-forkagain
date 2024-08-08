@@ -4,20 +4,49 @@
     <div id="bookshelf" class="w-full h-full p-8e overflow-y-auto" :style="{ fontSize: sizeMultiplier + 'rem' }">
       <!-- Cover size widget -->
       <widgets-cover-size-widget class="fixed right-4 z-50" :style="{ bottom: streamLibraryItem ? '181px' : '16px' }" />
+      <div class="flex justify-end p-4">
+        <button
+          class="btn"
+          :class="mergeButtonClass"
+          @click="showMergeModal"
+          :disabled="selectedAuthors.length !== 2"
+        >
+          Merge
+        </button>
+      </div>
       <div class="flex flex-wrap justify-center">
         <template v-for="author in authorsSorted">
-          <cards-author-card :key="author.id" :author="author" class="p-3e" @edit="editAuthor" />
+          <div class="author-card-container p-3e">
+            <cards-author-card :key="author.id" :author="author" @edit="editAuthor" />
+            <div class="flex justify-center mt-2">
+              <input type="checkbox" v-model="selectedAuthorsMap[author.id]" @change="updateSelectedAuthors" />
+            </div>
+          </div>
         </template>
       </div>
     </div>
-    <!-- 引入 editModal 组件 -->
+
     <edit-modal />
+    <merge-author-modal
+      v-if="isMergeModalVisible"
+      :authorA="selectedAuthors[0]"
+      :authorB="selectedAuthors[1]"
+      @close="closeMergeModal"
+      @merge="handleMerge"
+    />
   </div>
 </template>
 
 <script>
+import EditModal from '@/components/modals/authors/EditModal.vue'
+import MergeAuthorModal from '@/components/modals/MergeAuthorModal.vue'
+
 export default {
-  async asyncData({ store, params, redirect, query, app }) {
+  components: {
+    EditModal,
+    MergeAuthorModal
+  },
+  async asyncData({ store, params, redirect }) {
     var libraryId = params.library
     var libraryData = await store.dispatch('libraries/fetch', libraryId)
     if (!libraryData) {
@@ -36,7 +65,9 @@ export default {
   data() {
     return {
       loading: true,
-      authors: []
+      authors: [],
+      selectedAuthorsMap: {},
+      isMergeModalVisible: false
     }
   },
   computed: {
@@ -49,8 +80,11 @@ export default {
     currentLibraryId() {
       return this.$store.state.libraries.currentLibraryId
     },
-    selectedAuthor() {
-      return this.$store.state.globals.selectedAuthor
+    selectedAuthors() {
+      return this.authors.filter(author => this.selectedAuthorsMap[author.id])
+    },
+    mergeButtonClass() {
+      return this.selectedAuthors.length === 2 ? 'btn-primary' : 'btn-disabled'
     },
     authorSortBy() {
       return this.$store.getters['user/getUserSetting']('authorSortBy') || 'name'
@@ -115,6 +149,23 @@ export default {
         }
       }
       this.$store.commit('globals/setConfirmPrompt', payload)
+    },
+    updateSelectedAuthors() {
+      this.selectedAuthors = this.authors.filter(author => this.selectedAuthorsMap[author.id])
+    },
+    showMergeModal() {
+      if (this.selectedAuthors.length === 2) {
+        this.isMergeModalVisible = true
+      }
+    },
+    closeMergeModal() {
+      this.isMergeModalVisible = false
+    },
+    handleMerge(mergedAuthor) {
+      //TODO: API that merge two authors
+      console.log('Merged Author:', mergedAuthor)
+      this.isMergeModalVisible = false
+      this.selectedAuthorsMap = {}
     }
   },
   mounted() {
@@ -130,3 +181,57 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.page {
+  background-color: #1a1a1a;
+  color: #ffffff;
+}
+
+.author-card-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background-color: #28a745;
+  color: #ffffff;
+}
+
+.btn-disabled {
+  background-color: #6c757d;
+  color: #ffffff;
+}
+
+.flex {
+  display: flex;
+}
+
+.justify-end {
+  justify-content: flex-end;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.mt-2 {
+  margin-top: 0.5rem;
+}
+
+.p-4 {
+  padding: 1rem;
+}
+
+.p-8e {
+  padding: 2rem;
+}
+</style>
