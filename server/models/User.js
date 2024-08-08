@@ -25,6 +25,8 @@ class User extends Model {
     this.isActive
     /** @type {boolean} */
     this.isLocked
+    /** @type {Object} */
+    this.notifications
     /** @type {Date} */
     this.lastSeen
     /** @type {Object} */
@@ -80,6 +82,7 @@ class User extends Model {
       bookmarks: userExpanded.bookmarks,
       isActive: userExpanded.isActive,
       isLocked: userExpanded.isLocked,
+      notifications: userExpanded.notifications,
       lastSeen: userExpanded.lastSeen?.valueOf() || null,
       createdAt: userExpanded.createdAt.valueOf(),
       permissions,
@@ -144,6 +147,7 @@ class User extends Model {
       type: oldUser.type || null,
       token: oldUser.token || null,
       isActive: !!oldUser.isActive,
+      notifications: oldUser.notifications,
       lastSeen: oldUser.lastSeen || null,
       extraData,
       createdAt: oldUser.createdAt || Date.now(),
@@ -369,6 +373,7 @@ class User extends Model {
           type: DataTypes.BOOLEAN,
           defaultValue: false
         },
+        notifications: DataTypes.JSON,
         lastSeen: DataTypes.DATE,
         permissions: DataTypes.JSON,
         bookmarks: DataTypes.JSON,

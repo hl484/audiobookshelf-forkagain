@@ -1,6 +1,7 @@
-const { DataTypes, Model, where, fn, col } = require('sequelize')
+const { DataTypes, Model, where, Op, fn, col } = require('sequelize')
 
 const oldAuthor = require('../objects/entities/Author')
+const { sequelize } = require('../Database')
 
 class Author extends Model {
   constructor(values, options) {
@@ -24,8 +25,8 @@ class Author extends Model {
     this.updatedAt
     /** @type {Date} */
     this.createdAt
-    /** @type {JSON} */
-    this.relation
+    /** @type {UUIDV4} */
+    this.is_alias_of
   }
 
   getOldAuthor() {
@@ -38,7 +39,7 @@ class Author extends Model {
       libraryId: this.libraryId,
       addedAt: this.createdAt.valueOf(),
       updatedAt: this.updatedAt.valueOf(),
-      relation: this.relation
+      is_alias_of: this.is_alias_of
     })
   }
 
@@ -70,7 +71,7 @@ class Author extends Model {
       description: oldAuthor.description,
       imagePath: oldAuthor.imagePath,
       libraryId: oldAuthor.libraryId,
-      relation: oldAuthor.relation
+      is_alias_of: oldAuthor.is_alias_of
     }
   }
 
@@ -123,6 +124,24 @@ class Author extends Model {
     )?.getOldAuthor()
     return author
   }
+  /**
+   * Get author by penName in relation field. Case insensitive
+   *
+   * @param {string} penName
+   * @param {string} libraryId
+   * @returns {Promise<Author>}
+   */
+  // static async getOldByPenNameAndLibrary(authorPenName, libraryId) {
+  //   const authors = await this.findAll({
+  //     where: {
+  //       libraryId,
+  //       [Op.and]: sequelize.literal(`json_extract(lower(relation), '$.alians.${authorPenName.toLowerCase()}') IS NOT NULL`)
+  //     }
+  //   })
+
+  //   return authors.map((author) => author.getOldAuthor())
+  // }
+  /**
 
   /**
    *
@@ -185,7 +204,11 @@ class Author extends Model {
         asin: DataTypes.STRING,
         description: DataTypes.TEXT,
         imagePath: DataTypes.STRING,
-        relation: DataTypes.JSON
+        is_alias_of: {
+          type: DataTypes.UUID,
+          allowNull: true,
+          defaultValue: null
+        }
       },
       {
         sequelize,
