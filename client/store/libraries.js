@@ -12,9 +12,7 @@ export const state = () => ({
   numUserPlaylists: 0,
   collections: [],
   userPlaylists: [],
-  ereaderDevices: [],
-  showMergeAuthorsDialog: false, // new add
-  duplicateAuthors: [] // new add
+  ereaderDevices: []
 })
 
 export const getters = {
@@ -70,33 +68,20 @@ export const getters = {
   },
   getPlaylist: (state) => (id) => {
     return state.userPlaylists.find((p) => p.id === id)
-  },
-
-  duplicateAuthors: (state) => state.duplicateAuthors, //new add
-  showMergeAuthorsDialog: (state) => state.showMergeAuthorsDialog //new add
+  }
 }
 
 export const actions = {
   requestLibraryScan({ state, commit }, { libraryId, force }) {
     return this.$axios
       .$post(`/api/libraries/${libraryId}/scan?force=${force ? 1 : 0}`)
-      .then((result) => {
-        if (result.duplicateAuthors && result.duplicateAuthors.length > 0) {
-          commit('setDuplicateAuthors', result.duplicateAuthors)
-          commit('setShowMergeAuthorsDialog', true)
-        }
+      .then((response) => {
+        return response
       })
       .catch((error) => {
-        console.error('Failed to scan library:', error)
+        throw error
       })
   },
-  mergeAuthors({ commit }, merge) {
-    if (merge) {
-      // the logic of merge
-    }
-    commit('setShowMergeAuthorsDialog', false)
-  },
-
   loadFolders({ state, commit }) {
     if (state.folders.length) {
       const lastCheck = Date.now() - state.folderLastUpdate
@@ -222,12 +207,6 @@ export const mutations = {
   },
   setCurrentLibrary(state, val) {
     state.currentLibraryId = val
-  },
-  setDuplicateAuthors(state, authors) {
-    state.duplicateAuthors = authors
-  },
-  setShowMergeAuthorsDialog(state, show) {
-    state.showMergeAuthorsDialog = show
   },
   set(state, libraries) {
     state.libraries = libraries
