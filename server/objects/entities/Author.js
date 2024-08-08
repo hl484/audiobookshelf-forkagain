@@ -1,5 +1,5 @@
 const Logger = require('../../Logger')
-const uuidv4 = require("uuid").v4
+const uuidv4 = require('uuid').v4
 const { checkNamesAreEqual, nameToLastFirst } = require('../../utils/parsers/parseNameString')
 
 class Author {
@@ -12,6 +12,7 @@ class Author {
     this.addedAt = null
     this.updatedAt = null
     this.libraryId = null
+    this.is_alias_of = null
 
     if (author) {
       this.construct(author)
@@ -27,6 +28,7 @@ class Author {
     this.addedAt = author.addedAt
     this.updatedAt = author.updatedAt
     this.libraryId = author.libraryId
+    this.is_alias_of = author.is_alias_of || null
   }
 
   get lastFirst() {
@@ -43,7 +45,8 @@ class Author {
       imagePath: this.imagePath,
       addedAt: this.addedAt,
       updatedAt: this.updatedAt,
-      libraryId: this.libraryId
+      libraryId: this.libraryId,
+      is_alias_of: this.is_alias_of
     }
   }
 
@@ -72,6 +75,7 @@ class Author {
     this.addedAt = Date.now()
     this.updatedAt = Date.now()
     this.libraryId = libraryId
+    //
   }
 
   update(payload) {

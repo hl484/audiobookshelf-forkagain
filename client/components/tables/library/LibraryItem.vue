@@ -44,7 +44,8 @@ export default {
     return {
       mouseover: false,
       isDeleting: false,
-      showMobileMenu: false
+      showMobileMenu: false,
+      penNameConfirmation: []
     }
   },
   computed: {
@@ -130,13 +131,13 @@ export default {
     scan(force = false) {
       this.$store
         .dispatch('libraries/requestLibraryScan', { libraryId: this.library.id, force })
-        .then(() => {
+        .then((response) => {
           // this.$toast.success(this.$strings.ToastLibraryScanStarted)
 
-          this.merge(duplicateAuthors)
-
-          if (result.duplicateAuthors && result.duplicateAuthors.length > 0) {
-            this.merge(result.duplicateAuthors)
+          this.penNameConfirmation = response
+          if (Array.isArray(this.penNameConfirmation) && this.penNameConfirmation.length > 0) {
+            this.Merge(this.penNameConfirmation)
+            ////// zih/master
           }
         })
         .catch((error) => {
@@ -144,39 +145,24 @@ export default {
           this.$toast.error(this.$strings.ToastLibraryScanFailedToStart)
         })
     },
-    mergeAuthors(confirmed) {
-      this.$store.dispatch('libraries/mergeAuthors', confirmed)
-    },
-    merge(duplicateAuthors) {
-      const authorNames = duplicateAuthors.map((author) => author.name).join(' and ')
-      const message = this.$getString('MessageConfirmMergeAuthors', [authorNames])
-      const payload = {
-        message: message,
-        type: 'yesNo',
-        callback: (confirmed) => {
-          if (confirmed) {
-            this.mergeAuthors(confirmed)
-          }
-        }
-      }
-      this.$store.commit('globals/setConfirmPrompt', payload)
-    },
 
-    /*    mergeAuthors(confirmed) {
-      this.$store.dispatch('libraries/mergeAuthors', confirmed)
-       },
-   Merge(){
-           const  playload = {
-            message: 'Discover similar authors xxx and xxx, do you want to merge then?',
-            type: 'yesNo',
-            callback: (confirmed) =>{
-              if(confirmed){
-
-              }
+    Merge(penNameConfirmation) {
+      for (const item of penNameConfirmation) {
+        console.log('Book', item)
+        const payload = {
+          message: "The author '" + item.authorName + "' of book '" + item.bookTitle + "' seems to be a pseudonym of the existing author '" + item.possibleAuthorName + "', do you want to merge them?",
+          type: 'yesNo',
+          callback: (confirmed) => {
+            if (confirmed) {
+              const updatePayload = { name: item.possibleAuthorName }
+              this.$axios.$patch(`/api/authors/${item.authorId}`, updatePayload)
             }
           }
-          this.$store.commit('globals/setConfirmPrompt',playload)
-    },*/
+        }
+        this.$store.commit('globals/setConfirmPrompt', payload)
+      }
+    },
+    //// zih/master
     deleteClick() {
       const payload = {
         message: this.$getString('MessageConfirmDeleteLibrary', [this.library.name]),

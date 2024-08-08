@@ -80,14 +80,13 @@ export const actions = {
   requestLibraryScan({ state, commit }, { libraryId, force }) {
     return this.$axios
       .$post(`/api/libraries/${libraryId}/scan?force=${force ? 1 : 0}`)
-      .then((result) => {
-        if (result.duplicateAuthors && result.duplicateAuthors.length > 0) {
-          commit('setDuplicateAuthors', result.duplicateAuthors)
-          commit('setShowMergeAuthorsDialog', true)
-        }
+
+      .then((response) => {
+        return response
       })
       .catch((error) => {
-        console.error('Failed to scan library:', error)
+        throw error
+        ///// zih/master
       })
   },
   mergeAuthors({ commit }, merge) {

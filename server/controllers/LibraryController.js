@@ -863,9 +863,11 @@ class LibraryController {
     res.sendStatus(200)
 
     const forceRescan = req.query.force === '1'
-    await LibraryScanner.scan(req.library, forceRescan)
-
+    //const penNameConfirmation = []
+    await LibraryScanner.scan(req.library, forceRescan, JSON.parse(req.session.passport.user).id)
     await Database.resetLibraryIssuesFilterData(req.library.id)
+    //res.send(penNameConfirmation)
+
     Logger.info('[LibraryController] Scan complete')
   }
 
