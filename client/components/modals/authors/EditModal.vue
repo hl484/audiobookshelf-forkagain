@@ -20,9 +20,7 @@
             <ui-text-input v-model="imageUrl" :placeholder="$strings.LabelImageURLFromTheWeb" class="h-9 w-full" />
             <ui-btn color="success" type="submit" :padding-x="4" :disabled="!imageUrl" class="ml-2 sm:ml-3 w-24 h-9">{{ $strings.ButtonSubmit }}</ui-btn>
           </form>
-          <!-- add some test -->
 
-          <!-- add some test -->
           <form v-if="author" @submit.prevent="submitForm">
             <div class="flex">
               <div class="w-3/4 p-2">
@@ -31,28 +29,7 @@
               <div class="flex-grow p-2">
                 <ui-text-input-with-label v-model="authorCopy.asin" :disabled="processing" label="ASIN" />
               </div>
-              <!-- Alias Data Section -->
-              <div class="w-3/4 p-2">
-                <h3 class="text-lg font-bold">Alias Data</h3>
-                <pre>{{ authorCopy.alias }}</pre>
-              </div>
-              <!-- Alias Data Section -->
             </div>
-            <!-- add pen name column -->
-            <!-- <div class="flex">
-              <div class="w-3/4 p-2">
-                <ui-text-input-with-label v-model="authorCopy.alias" :disabled="processing" :label="$strings.Labelalias" />
-              </div>
-            </div> -->
-            <!-- test alias column -->
-            <div v-for="(aliasItem, index) in authorCopy.alias" :key="aliasItem.id" class="flex items-center mb-2">
-              <div class="w-3/4 p-2">
-                <ui-text-input-with-label v-model="authorCopy.alias[index].name" :disabled="processing" :label="$strings.Labelalias" />
-              </div>
-              <ui-btn small color="error" type="button" @click="removealias(index)">{{ $strings.ButtonRemove }}</ui-btn>
-            </div>
-
-            <!--test -->
             <div class="p-2">
               <ui-textarea-with-label v-model="authorCopy.description" :disabled="processing" :label="$strings.LabelDescription" :rows="8" />
             </div>
@@ -60,9 +37,6 @@
             <div class="flex pt-2 px-2">
               <ui-btn v-if="userCanDelete" small color="error" type="button" @click.stop="removeClick">{{ $strings.ButtonRemove }}</ui-btn>
               <div class="flex-grow" />
-              <!-- Add Alias Button -->
-              <ui-btn type="button" class="mx-2" @click="addalias">{{ $strings.ButtonAddAlias }}</ui-btn>
-
               <ui-btn type="button" class="mx-2" @click="searchAuthor">{{ $strings.ButtonQuickMatch }}</ui-btn>
 
               <ui-btn type="submit">{{ $strings.ButtonSave }}</ui-btn>
@@ -81,7 +55,6 @@ export default {
       authorCopy: {
         name: '',
         asin: '',
-        alias: [],
         description: ''
       },
       imageUrl: '',
@@ -131,19 +104,8 @@ export default {
     init() {
       this.imageUrl = ''
       this.authorCopy = {
-        ...this.author,
-        // alias: this.author.alias || ''
-        alias: Array.isArray(this.author.alias) ? this.author.alias : []
+        ...this.author
       }
-      console.log('Initialized authorCopy:', this.authorCopy)
-      this.fetchAuthorData()
-    },
-    addalias() {
-      const newAlias = { id: Date.now().toString(), name: '' } //
-      this.authorCopy.alias.push(newAlias) // add alias method
-    },
-    removealias(index) {
-      this.authorCopy.alias.splice(index, 1) // delete alias method in a array
     },
     removeClick() {
       const payload = {
@@ -170,9 +132,8 @@ export default {
       }
       this.$store.commit('globals/setConfirmPrompt', payload)
     },
-
     async submitForm() {
-      var keysToCheck = ['name', 'asin', 'description', 'alias']
+      var keysToCheck = ['name', 'asin', 'description']
       var updatePayload = {}
       keysToCheck.forEach((key) => {
         if (this.authorCopy[key] !== this.author[key]) {
@@ -280,25 +241,6 @@ export default {
         this.$toast.info('No updates were made for Author')
       }
       this.processing = false
-    },
-
-    async fetchAuthorData() {
-      this.processing = true
-      console.log('Fetching author data...')
-      console.log('Author ID:', this.authorId)
-      try {
-        // const response = await this.$axios.$get(`/api/authors/${this.authorId}`)
-        const response = await this.$axios.$get(`/api/authors/${this.authorId}/alias`)
-        console.log('Response:', response)
-        this.authorCopy.alias = response.alias || []
-        console.log('authorCopy.alias:', this.authorCopy.alias)
-        this.$toast.success('Author data fetched successfully')
-      } catch (error) {
-        console.error('Failed to fetch author data', error)
-        this.$toast.error('Failed to fetch author data')
-      } finally {
-        this.processing = false
-      }
     }
   },
   mounted() {},
