@@ -21,13 +21,9 @@ const OpfFileScanner = require('./OpfFileScanner')
 const NfoFileScanner = require('./NfoFileScanner')
 const AbsMetadataFileScanner = require('./AbsMetadataFileScanner')
 const EBookFile = require('../objects/files/EBookFile')
-<<<<<<< HEAD
 
 const User = require('../models/User')
-// zih/master
-=======
-const User = require('../models/User')
->>>>>>> kang/master
+//// kang/master
 
 /**
  * Metadata for books pulled from files
@@ -506,10 +502,7 @@ class BookScanner {
           await Database.userModel.updateFromOld(dbUser)
         }
 
-<<<<<<< HEAD
-        /////// zih/master
-=======
->>>>>>> kang/master
+        //kang/master
         if (matchingAuthorId) {
           bookObject.bookAuthors.push({
             authorId: matchingAuthorId
@@ -519,15 +512,10 @@ class BookScanner {
           bookObject.bookAuthors.push({
             author: {
               libraryId: libraryItemData.libraryId,
-<<<<<<< HEAD
 
               name: authorName,
               lastFirst: parseNameString.nameToLastFirst(authorName) //Standardize author names
               // zih/master
-=======
-              name: authorName,
-              lastFirst: parseNameString.nameToLastFirst(authorName) //Standardize author names
->>>>>>> kang/master
             }
           })
           // if (matchingPenAuthor) {

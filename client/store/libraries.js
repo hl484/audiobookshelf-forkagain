@@ -73,22 +73,19 @@ export const getters = {
 
 export const actions = {
   requestLibraryScan({ state, commit }, { libraryId, force }) {
-    return this.$axios
-      .$post(`/api/libraries/${libraryId}/scan?force=${force ? 1 : 0}`)
-<<<<<<< HEAD
+    return (
+      this.$axios
+        .$post(`/api/libraries/${libraryId}/scan?force=${force ? 1 : 0}`)
 
-=======
->>>>>>> kang/master
-      .then((response) => {
-        return response
-      })
-      .catch((error) => {
-        throw error
-<<<<<<< HEAD
-        ///// zih/master
-=======
->>>>>>> kang/master
-      })
+        //// kang/master
+        .then((response) => {
+          return response
+        })
+        .catch((error) => {
+          throw error
+          //// kang/master
+        })
+    )
   },
   loadFolders({ state, commit }) {
     if (state.folders.length) {

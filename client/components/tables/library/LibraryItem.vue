@@ -133,17 +133,12 @@ export default {
         .dispatch('libraries/requestLibraryScan', { libraryId: this.library.id, force })
         .then((response) => {
           // this.$toast.success(this.$strings.ToastLibraryScanStarted)
-<<<<<<< HEAD
+          //// HEAD
 
           this.penNameConfirmation = response
           if (Array.isArray(this.penNameConfirmation) && this.penNameConfirmation.length > 0) {
             this.Merge(this.penNameConfirmation)
             ////// zih/master
-=======
-          this.penNameConfirmation = response
-          if (Array.isArray(this.penNameConfirmation) && this.penNameConfirmation.length > 0) {
-            this.Merge(this.penNameConfirmation)
->>>>>>> kang/master
           }
         })
         .catch((error) => {
@@ -151,10 +146,8 @@ export default {
           this.$toast.error(this.$strings.ToastLibraryScanFailedToStart)
         })
     },
-<<<<<<< HEAD
 
-=======
->>>>>>> kang/master
+    /// kang/master
     Merge(penNameConfirmation) {
       for (const item of penNameConfirmation) {
         console.log('Book', item)
@@ -171,10 +164,8 @@ export default {
         this.$store.commit('globals/setConfirmPrompt', payload)
       }
     },
-<<<<<<< HEAD
-    //// zih/master
-=======
->>>>>>> kang/master
+
+    //// kang/master
     deleteClick() {
       const payload = {
         message: this.$getString('MessageConfirmDeleteLibrary', [this.library.name]),
