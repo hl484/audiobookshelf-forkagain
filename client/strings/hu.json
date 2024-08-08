@@ -817,5 +817,6 @@
   "ToastSortingPrefixesUpdateFailed": "Failed to update sorting prefixes",
   "ToastSortingPrefixesUpdateSuccess": "Sorting prefixes updated ({0} items)",
   "ToastUserDeleteFailed": "Felhasználó törlése sikertelen",
-  "ToastUserDeleteSuccess": "Felhasználó törölve"
+  "ToastUserDeleteSuccess": "Felhasználó törölve",
+  "MessageConfirmMergeAuthors": "Fedezzen fel hasonló szerzőket {0}, össze akarja vonni őket?"
 }

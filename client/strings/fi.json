@@ -181,5 +181,6 @@
   "LabelThemeLight": "Kirkas",
   "LabelUser": "Käyttäjä",
   "LabelUsername": "Käyttäjätunnus",
-  "MessageDownloadingEpisode": "Ladataan jaksoa"
+  "MessageDownloadingEpisode": "Ladataan jaksoa",
+  "MessageConfirmMergeAuthors": "Löydä samankaltaisia kirjoittajia {0}, haluatko yhdistää ne?"
 }

@@ -817,5 +817,6 @@
   "ToastSortingPrefixesUpdateFailed": "Failed to update sorting prefixes",
   "ToastSortingPrefixesUpdateSuccess": "Sorting prefixes updated ({0} items)",
   "ToastUserDeleteFailed": "Неуспешно изтриване на потребител",
-  "ToastUserDeleteSuccess": "Потребителят е изтрит"
+  "ToastUserDeleteSuccess": "Потребителят е изтрит",
+  "MessageConfirmMergeAuthors": "Открийте подобни автори {0}, искате ли да ги обедините?"
 }

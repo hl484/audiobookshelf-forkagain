@@ -817,5 +817,6 @@
   "ToastSortingPrefixesUpdateFailed": "Failed to update sorting prefixes",
   "ToastSortingPrefixesUpdateSuccess": "Sorting prefixes updated ({0} items)",
   "ToastUserDeleteFailed": "Failed to delete user",
-  "ToastUserDeleteSuccess": "User deleted"
+  "ToastUserDeleteSuccess": "User deleted",
+  "MessageConfirmMergeAuthors": "समान लेखकों को खोजें {0}, क्या आप उन्हें मर्ज करना चाहते हैं?"
 }

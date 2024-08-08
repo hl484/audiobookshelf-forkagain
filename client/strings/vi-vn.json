@@ -817,5 +817,6 @@
   "ToastSortingPrefixesUpdateFailed": "Failed to update sorting prefixes",
   "ToastSortingPrefixesUpdateSuccess": "Sorting prefixes updated ({0} items)",
   "ToastUserDeleteFailed": "Xóa người dùng thất bại",
-  "ToastUserDeleteSuccess": "Người dùng đã được xóa"
+  "ToastUserDeleteSuccess": "Người dùng đã được xóa",
+  "MessageConfirmMergeAuthors": "Khám phá các tác giả tương tự {0}, bạn có muốn hợp nhất chúng không?"
 }

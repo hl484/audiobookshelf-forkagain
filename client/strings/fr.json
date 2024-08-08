@@ -830,5 +830,6 @@
   "ToastSortingPrefixesUpdateFailed": "Échec de la mise à jour des préfixes de tri",
   "ToastSortingPrefixesUpdateSuccess": "Mise à jour des préfixes de tri ({0} élément)",
   "ToastUserDeleteFailed": "Échec de la suppression de l’utilisateur",
-  "ToastUserDeleteSuccess": "Utilisateur supprimé"
+  "ToastUserDeleteSuccess": "Utilisateur supprimé",
+  "MessageConfirmMergeAuthors": "Découvrez des auteurs similaires {0}, voulez-vous les fusionner?"
 }

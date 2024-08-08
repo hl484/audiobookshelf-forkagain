@@ -836,5 +836,6 @@
   "ToastSortingPrefixesUpdateFailed": "Failed to update sorting prefixes",
   "ToastSortingPrefixesUpdateSuccess": "Sorting prefixes updated ({0} items)",
   "ToastUserDeleteFailed": "Nie udało się usunąć użytkownika",
-  "ToastUserDeleteSuccess": "Użytkownik usunięty"
+  "ToastUserDeleteSuccess": "Użytkownik usunięty",
+  "MessageConfirmMergeAuthors": "Odkryj podobnych autorów {0}, czy chcesz je połączyć?"
 }

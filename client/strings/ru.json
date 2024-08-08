@@ -817,5 +817,6 @@
   "ToastSortingPrefixesUpdateFailed": "Не удалось обновить префиксы сортировки",
   "ToastSortingPrefixesUpdateSuccess": "Обновлены префиксы сортировки ({0} элементов)",
   "ToastUserDeleteFailed": "Не удалось удалить пользователя",
-  "ToastUserDeleteSuccess": "Пользователь удален"
+  "ToastUserDeleteSuccess": "Пользователь удален",
+  "MessageConfirmMergeAuthors": "Найдите похожих авторов {0}, хотите их объединить?"
 }
