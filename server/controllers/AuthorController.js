@@ -450,17 +450,18 @@ class AuthorController {
         return res.status(404).send('Author not found');
       }
 
-      const deletedCount = await Database.authorModel.destroy({
+      const alias = await Database.authorModel.findOne({
         where: {
           is_alias_of: authorId,
           name: name
         }
       });
-      if (deletedCount === 0) {
+      if (!alias) {
         return res.status(404).send('Alias not found');
       }
+      await alias.update({ is_alias_of: null });
       return res.status(200).json({
-        message: 'Successfully deleted the alias'
+        message: 'Successfully unlinked the alias'
       });
     }
     catch (error) {
