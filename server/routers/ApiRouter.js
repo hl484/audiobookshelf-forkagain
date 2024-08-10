@@ -264,6 +264,8 @@ class ApiRouter {
     this.router.patch('/notifications/:id', NotificationController.middleware.bind(this), NotificationController.updateNotification.bind(this))
     this.router.get('/notifications/:id/test', NotificationController.middleware.bind(this), NotificationController.sendNotificationTest.bind(this))
 
+    this.router.get('/getNotifications', NotificationController.middleware.bind(this), NotificationController.getNotifications.bind(this))
+
     //
     // Email Routes (Admin and up)
     //
