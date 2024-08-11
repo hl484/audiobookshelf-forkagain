@@ -465,8 +465,36 @@ class AuthorController {
       });
     }
     catch (error) {
-      Logger.error(`[AuthorController] Error deleting alias: ${error.message}`)
-      res.status(500).send('Internal Server Error')
+      Logger.error(`[AuthorController] Error deleting alias: ${error.message}`);
+      res.status(500).send('Internal Server Error');
+    }
+  }
+
+  /**
+   * GET: api/authors/:id/origin
+   *
+   * @param {import('express').Request} req
+   * @param {import('express').Response} res
+   */
+  async getOriginAuthor(req, res) {
+    try {
+      const authorId = req.params.id;
+      const author = await Database.authorModel.findByPk(authorId);
+      if (!author) {
+        return res.status(404).send('Author not found');
+      }
+
+      const originId = author.is_alias_of
+      if (originId == null) {
+        return res.status(200).json([]);
+      }
+
+      const originAuhtor = await Database.authorModel.findByPk(originId);
+      return res.status(200).json(originAuhtor);
+    }
+    catch (error) {
+      Logger.error(`[AuthorController] Error deleting alias: ${error.message}`);
+      res.status(500).send('Internal Server Error');
     }
   }
 
