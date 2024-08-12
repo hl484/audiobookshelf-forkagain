@@ -481,23 +481,21 @@ class BookScanner {
         const matchingAuthorId = await Database.getAuthorIdByName(libraryItemData.libraryId, authorName) //Query the standardized author name
         const alias = await Database.getAuthorAliasIdByName(libraryItemData.libraryId, authorName)
         //const matchingPenAuthor = await Database.getAuthorIdByPenName(libraryItemData.libraryId, authorName.replace(/\s+/g, '').toLowerCase())
-        //console.debug(alias)
 
         if (alias === null || alias.length === 0) {
-          //console.debug('no match')
         } else {
+          const author = await Database.authorModel.getOldById(matchingAuthorId)
+          const aliasAuthor = await Database.authorModel.getOldById(alias)
+
           const newNotification = {
             time: new Date().toISOString(),
             category: 'merge',
             bookTitle: bookMetadata.title,
-            authorName: authorName,
-            alias: alias
+            author: author,
+            aliasAuthor: aliasAuthor
           }
 
           const dbUser = await Database.userModel.getUserById(userId)
-          if (dbUser.notifications === null) {
-            dbUser.notifications = []
-          }
           dbUser.notifications.push(newNotification)
           await Database.userModel.updateFromOld(dbUser)
         }

@@ -15,7 +15,7 @@ class User {
     this.isLocked = false
     this.lastSeen = null
     this.createdAt = null
-    this.notifications = null
+    this.notifications = []
 
     this.mediaProgress = []
     this.seriesHideFromContinueListening = [] // Series IDs that should not show on home page continue listening
@@ -157,6 +157,7 @@ class User {
     this.pash = user.pash
     this.type = user.type
     this.token = user.token
+    this.notifications = user.notifications
 
     this.mediaProgress = []
     if (user.mediaProgress) {
