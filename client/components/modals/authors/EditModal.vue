@@ -30,6 +30,23 @@
                 <ui-text-input-with-label v-model="authorCopy.asin" :disabled="processing" label="ASIN" />
               </div>
             </div>
+
+            <div v-if="authorCopy.aliases.length > 0" class="p-2">
+              <p class="text-white text-opacity-60 uppercase text-xs mb-2">Aliases: </p>
+              <div v-for="alias in authorCopy.aliases" :key="alias" class="flex justify-between items-center">
+                <span>{{ alias.name }}</span>
+                <ui-btn color="error" small type="button" @click="removeAlias(alias)">Remove</ui-btn>
+              </div>
+              <div class="p-2">
+                <ui-text-input v-model="newAlias" :disabled="processing" placeholder="Enter alias" />
+                <ui-btn class="mt-2" color="success" type="button" @click="addAlias" :disabled="processing || !newAlias">Add Alias</ui-btn>
+              </div>
+            </div>
+
+            <div v-else-if="authorCopy.originalAuthor" class="p-2">
+              <span>Original Author: {{ authorCopy.originalAuthor }}</span>
+            </div>
+
             <div class="p-2">
               <ui-textarea-with-label v-model="authorCopy.description" :disabled="processing" :label="$strings.LabelDescription" :rows="8" />
             </div>
@@ -52,10 +69,13 @@
 export default {
   data() {
     return {
+      newAlias: '',
       authorCopy: {
         name: '',
         asin: '',
-        description: ''
+        description: '',
+        aliases: [],
+        originalAuthor: null,
       },
       imageUrl: '',
       processing: false
@@ -104,7 +124,9 @@ export default {
     init() {
       this.imageUrl = ''
       this.authorCopy = {
-        ...this.author
+        ...this.author,
+        aliases: this.author.aliases || [],
+        originalAuthor: this.originalAuthor || null
       }
     },
     removeClick() {
@@ -241,6 +263,37 @@ export default {
         this.$toast.info('No updates were made for Author')
       }
       this.processing = false
+    },
+    async removeAlias(alias) {
+      this.processing = true;
+      try {
+        await this.$axios.$delete(`/api/authors/${this.authorId}/alias`, {
+          data: { name: alias.name }
+        });
+        this.authorCopy.aliases = this.authorCopy.aliases.filter(a => a.name !== alias.name);
+        this.$toast.success('Alias removed successfully');
+      } catch (error) {
+        console.error('Failed to remove alias', error);
+        this.$toast.error('Failed to remove alias');
+      } finally {
+        this.processing = false;
+      }
+    },
+    async addAlias() {
+      if (!this.newAlias.trim()) return;
+
+      this.processing = true;
+      try {
+        const response = await this.$axios.$post(`/api/authors/${this.authorId}/alias`, { name: this.newAlias });
+        this.authorCopy.aliases.push(response.alias);
+        this.newAlias = '';
+        this.$toast.success('Alias added successfully');
+      } catch (error) {
+        console.error('Failed to add alias', error);
+        this.$toast.error('Failed to add alias');
+      } finally {
+        this.processing = false;
+      }
     }
   },
   mounted() {},

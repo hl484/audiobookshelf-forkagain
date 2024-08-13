@@ -16,6 +16,20 @@
             </button>
           </div>
 
+          <!-- Alias or Original Author Section -->
+          <div v-if="originalAuthor" class="mb-4">
+            <p class="text-white text-opacity-60 uppercase text-xs mb-2">Origin Author: </p>
+            <nuxt-link :to="`/author/${originalAuthor.id}`" class="block bg-gray-800 p-2 rounded mb-2 text-white">
+              {{ originalAuthor.name }}
+            </nuxt-link>
+          </div>
+          <div v-else-if="aliases.length" class="mb-4">
+            <p class="text-white text-opacity-60 uppercase text-xs mb-2">Aliases: </p>
+            <div v-for="alias in aliases" :key="alias.id" class="bg-gray-800 p-2 rounded mb-2 text-white">
+              <nuxt-link :to="`/author/${alias.id}`" class="block">{{ alias.name }}</nuxt-link>
+            </div>
+          </div>
+
           <p v-if="author.description" class="text-white text-opacity-60 uppercase text-xs mb-2">{{ $strings.LabelDescription }}</p>
           <p ref="description" id="author-description" class="text-white max-w-3xl text-base whitespace-pre-wrap" :class="{ 'show-full': showFullDescription }">{{ author.description }}</p>
           <button v-if="isDescriptionClamped" class="py-0.5 flex items-center text-slate-300 hover:text-white" @click="showFullDescription = !showFullDescription">
@@ -52,6 +66,11 @@ export default {
       return null
     })
 
+    // const authorAliases = await app.$axios.$get(`/api/authors/${params.id}/alias`).catch((error) => {
+    //   console.error('Failed to get aliases', error)
+    //   return []
+    // })
+
     if (!author) {
       return redirect(`/library/${store.state.libraries.currentLibraryId}/authors`)
     }
@@ -61,7 +80,9 @@ export default {
     }
 
     return {
-      author
+      author,
+      originalAuthor: author.originalAuthor || null,
+      aliases: author.aliases || []
     }
   },
   data() {
@@ -127,6 +148,7 @@ export default {
 }
 </script>
 
+
 <style scoped>
 #author-description {
   overflow: hidden;
@@ -139,5 +161,13 @@ export default {
 #author-description.show-full {
   -webkit-line-clamp: unset;
   max-height: 999rem;
+}
+
+.alias-box {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  margin: 0.25rem;
 }
 </style>

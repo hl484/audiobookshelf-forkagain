@@ -26,6 +26,22 @@ class AuthorController {
 
     const authorJson = req.author.toJSON()
 
+    //TODO: Determine whether it is an original name or an alias
+    if (req.author.is_alias_of) {
+      const originalAuthor = await Database.authorModel.findByPk(req.author.is_alias_of, {
+        attributes: ['id', 'name']
+      })
+      authorJson.originalAuthor = originalAuthor
+    } else {
+      const aliases = await Database.authorModel.findAll({
+        where: {
+          is_alias_of: req.author.id
+        },
+        attributes: ['id', 'name']
+      })
+      authorJson.aliases = aliases
+    }
+
     // Used on author landing page to include library items and items grouped in series
     if (include.includes('items')) {
       authorJson.libraryItems = await Database.libraryItemModel.getForAuthor(req.author, req.user)
@@ -386,7 +402,10 @@ class AuthorController {
       if (!aliases.length) {
         return res.status(200).json([]);
       }
-      const aliasesArr = aliases.map(alias => alias.name);
+      const aliasesArr = aliases.map(alias => ({
+        id: alias.id,
+        name: alias.name
+      }));
       return res.status(200).json(aliasesArr);
     }
     catch (error) {
