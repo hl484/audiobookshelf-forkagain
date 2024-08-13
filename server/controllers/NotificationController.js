@@ -62,7 +62,9 @@ class NotificationController {
   }
   async getNotifications(req, res) {
     const dbUser = await Database.userModel.getUserById(req.user.id)
+    console.log(req.user)
     res.json(dbUser.notifications)
+    console.log(dbUser.notifications)
   }
 
   middleware(req, res, next) {

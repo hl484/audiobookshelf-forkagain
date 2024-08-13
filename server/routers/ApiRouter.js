@@ -155,7 +155,7 @@ class ApiRouter {
     //
     this.router.post('/playlists', PlaylistController.create.bind(this))
     this.router.get('/playlists', PlaylistController.findAllForUser.bind(this))
-    this.router.get('/playlists/:id', PlaylistController.middleware.bind(this), PlaylistController.findOne.bind(this))
+    this.router.get('/  /:id', PlaylistController.middleware.bind(this), PlaylistController.findOne.bind(this))
     this.router.patch('/playlists/:id', PlaylistController.middleware.bind(this), PlaylistController.update.bind(this))
     this.router.delete('/playlists/:id', PlaylistController.middleware.bind(this), PlaylistController.delete.bind(this))
     this.router.post('/playlists/:id/item', PlaylistController.middleware.bind(this), PlaylistController.addItem.bind(this))
