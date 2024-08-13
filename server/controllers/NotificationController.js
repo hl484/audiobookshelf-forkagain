@@ -3,7 +3,7 @@ const Database = require('../Database')
 const { version } = require('../../package.json')
 
 class NotificationController {
-  constructor() { }
+  constructor() {}
 
   get(req, res) {
     res.json({
@@ -59,6 +59,12 @@ class NotificationController {
     const success = await this.notificationManager.sendTestNotification(req.notification)
     if (success) res.sendStatus(200)
     else res.sendStatus(500)
+  }
+  async getNotifications(req, res) {
+    const dbUser = await Database.userModel.getUserById(req.user.id)
+    console.log(req.user)
+    res.json(dbUser.notifications)
+    console.log(dbUser.notifications)
   }
 
   middleware(req, res, next) {
