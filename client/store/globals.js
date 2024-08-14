@@ -27,6 +27,10 @@ export const state = () => ({
   isCasting: false, // Actively casting
   isChromecastInitialized: false, // Script loadeds
   showBatchQuickMatchModal: false,
+  notifications: [],
+  hasUnreadNotifications: false,
+  hasNotifications: false,
+
   dateFormats: [
     {
       text: 'MM/DD/YYYY',
@@ -124,6 +128,21 @@ export const getters = {
 }
 
 export const mutations = {
+  setNotifications(state, notifications) {
+    console.log('Old notifications:', state.notifications)
+    console.log('New notifications:', notifications)
+
+    console.log('Mutations - Received notifications:', notifications)
+    /* state.notifications = [...notifications] // 创建一个新数组，确保响应式系统检测到变化
+    state.hasUnreadNotifications = notifications.some((notification) => !notification.handled)
+    state.hasNotifications = notifications.length > 0*/
+    //state.notifications = JSON.parse(JSON.stringify(notifications))
+    state.notifications = [...notifications]
+    console.log('Updated notifications:', state.notifications)
+  },
+  setHasUnreadNotifications(state, status) {
+    state.hasUnreadNotifications = status
+  },
   updateWindowSize(state, { width, height }) {
     state.isMobile = width < 640 || height < 640
     state.isMobileLandscape = state.isMobile && height < width

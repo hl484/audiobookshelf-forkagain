@@ -2,15 +2,24 @@
   <div id="page-wrapper" class="bg-bg page overflow-y-auto p-4 md:p-8">
     <div class="max-w-6xl mx-auto">
       <h1 class="text-2xl mb-4 text-center">Similar Authors Detected</h1>
+
       <p class="text-center mb-6">The following authors are detected as similar. Do you want to merge them?</p>
       <div class="grid grid-cols-1 gap-4 justify-center">
         <div v-for="(authorPair, index) in authorPairs" :key="index" class="notification bg-card p-4 rounded-lg shadow-lg flex flex-col items-center w-full">
           <div class="flex justify-between items-center w-full mb-4 author-container">
             <AuthorCard v-for="author in authorPair" :key="author.id" :author="author" :width="cardWidth" :height="cardHeight" @edit="editAuthor" />
           </div>
+          <!--     <div>
+            {{ authorPair.id }}
+            {{ authorPair.name }}
+            {{ authorPair.alias }}
+            {{ authorPair.numBooks }}
+            {{ authorPair.description }}
+
+          </div>-->
           <div class="flex justify-center space-x-4 w-full mt-4">
             <button class="btn btn-primary" @click="showMergeModal(authorPair)">Merge</button>
-            <button class="btn btn-secondary" @click="cancelNotification">Cancel</button>
+            <button class="btn btn-secondary" @click="cancelNotification(authorPair)">Cancel</button>
           </div>
         </div>
       </div>
@@ -30,12 +39,13 @@ export default {
   },
   data() {
     return {
-      authorPairs: [
+      authorPairs: [],
+      /* authorPairs: [
         [
-          { id: 101, name: 'Author A', numBooks: 5, imagePath: null, asin: 'ASIN_A', description: 'Description A', alias: ['Alias A1', 'Alias A2'] },
-          { id: 102, name: 'Author B', numBooks: 3, imagePath: null, asin: 'ASIN_B', description: 'Description B', alias: ['Alias B1', 'Alias B2'] }
+          { id: 101, name: 'Author A', numBooks: 5, imagePath: null, asin: 'ASIN_A', description: 'Description A', alias: ['Alias A1', 'Alias A2'], handled: false },
+          { id: 102, name: 'Author B', numBooks: 3, imagePath: null, asin: 'ASIN_B', description: 'Description B', alias: ['Alias B1', 'Alias B2'], handled: false }
         ]
-      ],
+      ],*/
       isMergeModalVisible: false,
       selectedAuthorPair: null,
       isHovering: {},
@@ -46,6 +56,9 @@ export default {
     }
   },
   computed: {
+    hasUnreadNotifications() {
+      return this.authorPairs.some((pair) => !pair[0].handled || !pair[1].handled)
+    },
     userToken() {
       return this.$store.getters['user/getToken']
     },
@@ -60,6 +73,52 @@ export default {
     }
   },
   methods: {
+    async fetchAuthorPairs() {
+      console.log('---------fetchAuthorPairs started-------------')
+      try {
+        const token = this.userToken
+        console.log(`------------${token}---------`)
+        console.log(`------------${this.$store.getters['user/getToken']}---------`)
+        const response = await this.$axios.get('/api/getNotifications', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+        this.authorPairs = response.data.map((notification) => {
+          console.log(`------${notification}--------`)
+          return [
+            {
+              id: notification.id,
+              name: notification.name,
+              numBooks: notification.numBooks,
+              imagePath: notification.imagePath,
+              asin: notification.asin,
+              description: notification.description,
+              alias: notification.alias,
+              handled: notification.handled || false
+            },
+            {
+              id: notification.id,
+              name: notification.name,
+              numBooks: notification.numBooks,
+              imagePath: notification.imagePath,
+              asin: notification.asin,
+              description: notification.description,
+              alias: notification.alias,
+              handled: notification.handled || false
+            }
+          ]
+        })
+        this.updateGlobalNotificationsState()
+        // 事件监听器绑定到获取到的 authorPairs
+        // this.authorPairs.forEach((authorPair) => {
+        //   this.$eventBus.$on(`searching-author-${authorPair[0].id}`, this.setSearching)
+        //   this.$eventBus.$on(`searching-author-${authorPair[1].id}`, this.setSearching)
+        //  })
+      } catch (error) {
+        console.error('Failed to fetch author pairs:', error)
+      }
+    },
     editAuthor(author) {
       this.$store.commit('globals/showEditAuthorModal', author)
     },
@@ -71,15 +130,40 @@ export default {
       this.isMergeModalVisible = false
       this.selectedAuthorPair = null
     },
-    handleMerge(mergedAuthor) {
+    async handleMerge(mergedAuthor) {
       // 处理合并后的作者逻辑
       console.log('Merged Author:', mergedAuthor)
+      /*this.isMergeModalVisible = false
+      this.cancelNotification() // 合并后取消通知*/
+      this.selectedAuthorPair.forEach((author) => (author.handled = true))
+      await this.markNotificationAsHandled(this.selectedAuthorPair)
       this.isMergeModalVisible = false
-      this.cancelNotification() // 合并后取消通知
+      this.updateGlobalNotificationsState()
     },
-    cancelNotification() {
+    async cancelNotification(authorPairToCancel) {
       // 取消通知逻辑
-      this.authorPairs = []
+      //this.authorPairs = []
+      //this.selectedAuthorPair.forEach((author) => (author.handled = true))
+      this.authorPairs = this.authorPairs.filter((pair) => pair !== authorPairToCancel)
+      /* if (!Array.isArray(authorPair)) {
+        console.error('Expected an array for authorPair, but received:', authorPair)
+        return
+      }
+
+      // 标记 authorPair 中的所有 author 为 handled
+      authorPair.forEach((author) => {
+        author.handled = true
+      })
+
+      // 从 authorPairs 中移除已经处理的通知
+      this.authorPairs = this.authorPairs.filter((pair) => !pair.some((author) => author.handled === false))
+           */
+      // 更新全局通知状态
+      this.updateGlobalNotificationsState()
+    },
+    updateGlobalNotificationsState() {
+      const hasUnread = this.authorPairs.some((pair) => !pair[0].handled || !pair[1].handled)
+      this.$store.commit('setHasUnreadNotifications', hasUnread)
     },
     mouseover(index) {
       this.$set(this.isHovering, index, true)
@@ -114,10 +198,12 @@ export default {
     }
   },
   mounted() {
-    this.authorPairs.forEach((authorPair) => {
+    console.log('-----mounted started-------------')
+    this.fetchAuthorPairs()
+    /*this.authorPairs.forEach((authorPair) => {
       this.$eventBus.$on(`searching-author-${authorPair[0].id}`, this.setSearching)
       this.$eventBus.$on(`searching-author-${authorPair[1].id}`, this.setSearching)
-    })
+    })*/
   },
   beforeDestroy() {
     this.authorPairs.forEach((authorPair) => {
@@ -148,12 +234,14 @@ export default {
   width: 100%;
   padding: 10px;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow: visible;
+  padding-right: 10px;
 }
 
 .AuthorCard {
-  flex: 1 0 auto;
+  flex: 0 1 calc(50% - 20px);
   max-width: calc(50% - 10px);
+  margin: 0 5px;
 }
 
 .btn {
@@ -198,14 +286,21 @@ export default {
   justify-content: center;
   align-items: center;
   background-color: #2c2c2c;
-  padding: 1rem;
+  padding: 20px;
   border-radius: 0.5rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 100%;
+  max-width: 800px;
   overflow: hidden;
 }
 
 img {
   border-radius: 0.5rem;
+}
+#page-wrapper {
+  padding: 20px;
+}
+
+.grid {
+  gap: 10px;
 }
 </style>

@@ -123,9 +123,10 @@
       </nuxt-link>
       <nuxt-link v-if="isBookLibrary" :to="`/library/${currentLibraryId}/notifications`" class="w-full h-20 flex flex-col items-center justify-center text-white border-b border-primary border-opacity-70 hover:bg-primary cursor-pointer relative" :class="isPodcastLatestPage ? 'bg-primary bg-opacity-80' : 'bg-bg bg-opacity-60'">
         <span class="material-symbols text-2xl">Notifications</span>
-
-        <p class="pt-1 text-center leading-4" style="font-size: 0.9rem">{{ $strings.ButtonLatest }}</p>
-
+        <div class="relative">
+          <span v-if="hasNotifications" class="notification-indicator"></span>
+        </div>
+        <p class="pt-1 text-center leading-4" style="font-size: 0.9rem">Notification</p>
         <div v-show="isNotificationsPage" class="h-full w-0.5 bg-yellow-400 absolute top-0 left-0" />
       </nuxt-link>
     </div>
@@ -151,6 +152,7 @@ export default {
     Source() {
       return this.$store.state.Source
     },
+
     isNotificationsPage() {
       return this.$route.name === 'library-library-notifications'
     },
@@ -243,16 +245,85 @@ export default {
     streamLibraryItem() {
       return this.$store.state.streamLibraryItem
     },
+    hasNotifications() {
+      // 从 Vuex 状态中获取通知数据
+      const notifications = this.$store.state.globals.notifications
+      console.log('Vuex notifications:', notifications)
+      console.log('notifications.length', notifications.length)
+      // 如果通知数组的长度大于 0，则表示有通知
+      return notifications.length > 0
+    },
     showPlaylists() {
       return this.$store.state.libraries.numUserPlaylists > 0
+    },
+    //hasUnreadNotifications() {
+    //console.log('Current notifications:', this.$store.state.notifications);
+    //const notifications = this.$store.state.notifications || []
+    // console.log('Current notifications:', notifications)
+    // if (Array.isArray(notifications)) {
+    //   return notifications.some((notification) => !notification.handled)
+    //  }
+    // return false
+    //const result = this.$store.state.globals.hasUnreadNotifications
+    //  console.log('Computed hasUnreadNotifications:', result)
+    // return result
+    //},
+    notifications() {
+      console.log('Computed - Notifications from state:', this.$store.state.globals.notifications)
+      return this.$store.state.globals.notifications
+    },
+    userToken() {
+      return this.$store.getters['user/getToken']
     }
+  },
+  mounted() {
+    this.fetchNotifications()
   },
   methods: {
     clickChangelog() {
       this.showChangelogModal = true
+    },
+    //async checkNotifications() {
+    // try {
+    //   const token = sessionStorage.getItem('token')
+    //   const response = await this.$axios.get('/api/getNotifications', {
+    //     Headers: {
+    //       Authorization: `Bearer ${token}`
+    //     }
+    //   })
+    //   // 假设 `response.data` 返回的是一个通知列表
+    //   this.notifications = response.data
+    // } catch (error) {
+    //   console.error('Error fetching notifications:', error)
+    // }
+    // },
+    async fetchNotifications() {
+      try {
+        const token = this.userToken
+        const response = await this.$axios.get('/api/getNotifications', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+        const notifications = response.data
+        console.log('Fetched notifications:', notifications)
+
+        this.$store.commit('setNotifications', notifications)
+        console.log('Vuex notifications:', this.$store.state.globals.notifications)
+        /* console.log(
+          'Has unread notifications:',
+          notifications.some((notification) => !notification.handled)
+        )
+        const hasUnread = notifications.some((notification) => !notification.handled)
+        this.$store.commit('setHasUnreadNotifications', hasUnread)
+
+        console.log('Has unread notifications:', hasUnread) // 确认这里打印的是 true
+        console.log('Store value after commit:', this.$store.state.globals.hasUnreadNotifications) // 确认 Store 被正确更新*/
+      } catch (error) {
+        console.error('Failed to fetch notifications:', error)
+      }
     }
-  },
-  mounted() {}
+  }
 }
 </script>
 
@@ -262,5 +333,14 @@ export default {
 }
 #siderail-buttons-container.player-open {
   max-height: calc(100vh - 64px - 48px - 160px);
+}
+.notification-indicator {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  height: 10px;
+  width: 10px;
+  background-color: green;
+  border-radius: 50%;
 }
 </style>
