@@ -1,7 +1,7 @@
 <template>
   <div :style="{ minWidth: cardWidth + 'px', maxWidth: cardWidth + 'px' }">
     <nuxt-link :to="`/author/${author.id}`">
-      <div cy-id="card" @mouseover="mouseover" @mouseleave="mouseleave">
+      <div cy-id="card" @mouseover="mouseover" @mouseleave="mouseleave" @click="clickCard" :class="overlayWrapperClasslist">
         <div cy-id="imageArea" :style="{ height: cardHeight + 'px' }" class="bg-primary box-shadow-book rounded-md relative overflow-hidden">
           <!-- Image or placeholder -->
           <covers-author-image :author="author" />
@@ -24,6 +24,11 @@
             <ui-tooltip :text="$strings.LabelEdit" direction="bottom">
               <span class="material-symbols" :style="{ fontSize: 1.125 + 'em' }">edit</span>
             </ui-tooltip>
+          </div>
+
+          <!-- Radio button -->
+          <div cy-id="selectedRadioButton" v-if="!isAuthorBookshelfView" class="absolute cursor-pointer hover:text-yellow-300 hover:scale-125 transform duration-100" :style="{ bottom: 0.375 + 'em', left: 0.375 + 'em' }" @click.stop.prevent="selectBtnClick">
+            <span class="material-symbols" :class="selected ? 'text-yellow-400' : ''" :style="{ fontSize: 1.25 + 'em' }">{{ selected ? 'radio_button_checked' : 'radio_button_unchecked' }}</span>
           </div>
 
           <!-- Loading spinner -->
@@ -59,7 +64,8 @@ export default {
   data() {
     return {
       searching: false,
-      isHovering: false
+      isHovering: false,
+      selected: false
     }
   },
   computed: {
@@ -98,6 +104,27 @@ export default {
     },
     sizeMultiplier() {
       return this.$store.getters['user/getSizeMultiplier']
+    },
+
+    // 添加从 LazyBook.vue 粘贴的计算属性
+    overlayWrapperClasslist() {
+      const classes = []
+
+      if (this.isSelectionMode) {
+        classes.push('bg-opacity-60')
+      } else {
+        classes.push('bg-opacity-40')
+      }
+
+      if (this.selected) {
+        classes.push('border-2', 'border-yellow-400')
+      }
+
+      if (this.isHovering) {
+        classes.push('hover-white-border')
+      }
+
+      return classes
     }
   },
   methods: {
@@ -106,6 +133,9 @@ export default {
     },
     mouseleave() {
       this.isHovering = false
+    },
+    clickCard() {
+      this.selected = !this.selected
     },
     async searchAuthor() {
       this.searching = true
@@ -135,8 +165,15 @@ export default {
 
     setSearching(isSearching) {
       this.searching = isSearching
+    },
+    //add selectmethod
+    selectBtnClick(evt) {
+      if (this.processingBatch) return
+      this.selected = !this.selected
+      this.$emit('select', { entity: this.libraryItem, shiftKey: evt.shiftKey })
     }
   },
+
   mounted() {
     this.$eventBus.$on(`searching-author-${this.authorId}`, this.setSearching)
   },
@@ -145,3 +182,12 @@ export default {
   }
 }
 </script>
+<style scoped>
+.hover-white-border {
+  border: 2px solid white;
+}
+
+.border-yellow-400.selected {
+  border-color: yellow;
+}
+</style>

@@ -5,21 +5,14 @@
       <!-- Cover size widget -->
       <widgets-cover-size-widget class="fixed right-4 z-50" :style="{ bottom: streamLibraryItem ? '181px' : '16px' }" />
       <div class="flex justify-end p-4">
-        <button
-          class="btn"
-          :class="mergeButtonClass"
-          @click="showMergeModal"
-          :disabled="selectedAuthors.length !== 2"
-        >
-          Merge
-        </button>
+        <button class="btn" :class="mergeButtonClass" @click="showMergeModal" :disabled="selectedAuthors.length !== 2">Merge</button>
       </div>
       <div class="flex flex-wrap justify-center">
         <template v-for="author in authorsSorted">
           <div class="author-card-container p-3e">
             <cards-author-card :key="author.id" :author="author" @edit="editAuthor" />
             <div class="flex justify-center mt-2">
-              <input type="checkbox" v-model="selectedAuthorsMap[author.id]" @change="updateSelectedAuthors" />
+              <input type="checkbox" v-model="selectedAuthorsMap[author.id]" @change="updateSelectedAuthors" :disabled="selectedAuthors.length >= 2 && !selectedAuthorsMap[author.id]" />
             </div>
           </div>
         </template>
@@ -27,13 +20,8 @@
     </div>
 
     <edit-modal />
-    <merge-author-modal
-      v-if="isMergeModalVisible"
-      :authorA="selectedAuthors[0]"
-      :authorB="selectedAuthors[1]"
-      @close="closeMergeModal"
-      @merge="handleMerge"
-    />
+    <merge-author-modal v-if="isMergeModalVisible" :authorA="selectedAuthors[0]" :authorB="selectedAuthors[1]" @close="closeMergeModal" @merge="handleMerge" />
+    <merge-author-modal v-if="isMergeModalVisible" :authorA="selectedAuthors[0]" :authorB="selectedAuthors[1]" @close="closeMergeModal" @merge="handleMerge" />
   </div>
 </template>
 
@@ -81,7 +69,7 @@ export default {
       return this.$store.state.libraries.currentLibraryId
     },
     selectedAuthors() {
-      return this.authors.filter(author => this.selectedAuthorsMap[author.id])
+      return this.authors.filter((author) => this.selectedAuthorsMap[author.id])
     },
     mergeButtonClass() {
       return this.selectedAuthors.length === 2 ? 'btn-primary' : 'btn-disabled'
@@ -151,7 +139,8 @@ export default {
       this.$store.commit('globals/setConfirmPrompt', payload)
     },
     updateSelectedAuthors() {
-      this.selectedAuthors = this.authors.filter(author => this.selectedAuthorsMap[author.id])
+      this.selectedAuthors = this.authors.filter((author) => this.selectedAuthorsMap[author.id])
+      this.selectedAuthors = this.authors.filter((author) => this.selectedAuthorsMap[author.id])
     },
     showMergeModal() {
       if (this.selectedAuthors.length === 2) {
