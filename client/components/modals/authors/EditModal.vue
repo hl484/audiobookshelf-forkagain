@@ -32,7 +32,7 @@
             </div>
 
             <div v-if="authorCopy.aliases.length > 0" class="p-2">
-              <p class="text-white text-opacity-60 uppercase text-xs mb-2">Aliases: </p>
+              <p class="text-white text-opacity-60 uppercase text-xs mb-2">Aliases:</p>
               <div v-for="alias in authorCopy.aliases" :key="alias" class="flex justify-between items-center">
                 <span>{{ alias.name }}</span>
                 <ui-btn color="error" small type="button" @click="removeAlias(alias)">Remove</ui-btn>
@@ -75,7 +75,7 @@ export default {
         asin: '',
         description: '',
         aliases: [],
-        originalAuthor: null,
+        originalAuthor: null
       },
       imageUrl: '',
       processing: false
@@ -265,34 +265,34 @@ export default {
       this.processing = false
     },
     async removeAlias(alias) {
-      this.processing = true;
+      this.processing = true
       try {
         await this.$axios.$delete(`/api/authors/${this.authorId}/alias`, {
           data: { name: alias.name }
-        });
-        this.authorCopy.aliases = this.authorCopy.aliases.filter(a => a.name !== alias.name);
-        this.$toast.success('Alias removed successfully');
+        })
+        this.authorCopy.aliases = this.authorCopy.aliases.filter((a) => a.name !== alias.name)
+        this.$toast.success('Alias removed successfully')
       } catch (error) {
-        console.error('Failed to remove alias', error);
-        this.$toast.error('Failed to remove alias');
+        console.error('Failed to remove alias', error)
+        this.$toast.error('Failed to remove alias')
       } finally {
-        this.processing = false;
+        this.processing = false
       }
     },
     async addAlias() {
-      if (!this.newAlias.trim()) return;
+      if (!this.newAlias.trim()) return
 
-      this.processing = true;
+      this.processing = true
       try {
-        const response = await this.$axios.$post(`/api/authors/${this.authorId}/alias`, { name: this.newAlias });
-        this.authorCopy.aliases.push(response.alias);
-        this.newAlias = '';
-        this.$toast.success('Alias added successfully');
+        const response = await this.$axios.$post(`/api/authors/${this.authorId}/alias`, { name: this.newAlias })
+        this.authorCopy.aliases.push(response.alias)
+        this.newAlias = ''
+        this.$toast.success('Alias added successfully')
       } catch (error) {
-        console.error('Failed to add alias', error);
-        this.$toast.error('Failed to add alias');
+        console.error('Failed to add alias', error)
+        this.$toast.error('Failed to add alias')
       } finally {
-        this.processing = false;
+        this.processing = false
       }
     }
   },

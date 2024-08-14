@@ -18,13 +18,13 @@
 
           <!-- Alias or Original Author Section -->
           <div v-if="originalAuthor" class="mb-4">
-            <p class="text-white text-opacity-60 uppercase text-xs mb-2">Origin Author: </p>
+            <p class="text-white text-opacity-60 uppercase text-xs mb-2">Origin Author:</p>
             <nuxt-link :to="`/author/${originalAuthor.id}`" class="block bg-gray-800 p-2 rounded mb-2 text-white">
               {{ originalAuthor.name }}
             </nuxt-link>
           </div>
           <div v-else-if="aliases.length" class="mb-4">
-            <p class="text-white text-opacity-60 uppercase text-xs mb-2">Aliases: </p>
+            <p class="text-white text-opacity-60 uppercase text-xs mb-2">Aliases:</p>
             <div v-for="alias in aliases" :key="alias.id" class="bg-gray-800 p-2 rounded mb-2 text-white">
               <nuxt-link :to="`/author/${alias.id}`" class="block">{{ alias.name }}</nuxt-link>
             </div>
