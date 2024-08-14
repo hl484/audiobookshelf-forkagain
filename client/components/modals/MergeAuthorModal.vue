@@ -1,89 +1,6 @@
 <template>
   <div class="modal-overlay" @click.self="close">
     <div class="modal-container">
-<<<<<<< HEAD
-      <h2 class="modal-title">Merge Authors</h2>
-      <div class="author-sections">
-        <!-- Author A Section -->
-        <div class="author-section">
-          <h3>Author A</h3>
-          <div class="author-details">
-            <label>
-              <input type="radio" name="name" v-model="selectedAuthor" value="A" @change="updateMergedAuthorName('A')" />
-              Name: {{ authorA.name }}
-            </label>
-            <label>
-              <input type="radio" name="image" v-model="selectedImage" value="A" @change="updateMergedAuthorImage('A')" />
-              <div class="author-image-container">
-                <covers-author-image :author="authorA" :default-image="defaultImage" />
-              </div>
-            </label>
-            <label>
-              <input type="radio" name="asin" v-model="selectedASIN" value="A" @change="updateMergedAuthorASIN('A')" />
-              ASIN: {{ authorA.asin }}
-            </label>
-            <label>
-              <input type="radio" name="description" v-model="selectedDescription" value="A" @change="updateMergedAuthorDescription('A')" />
-              Description: {{ authorA.description }}
-            </label>
-            <label v-for="(alias, index) in authorA.alias" :key="index">
-              <input type="radio" :name="'alias' + index" v-model="selectedAlias[index]" :value="`A${index}`" @change="updateMergedAuthorAlias('A', index)" />
-              Alias: {{ alias }}
-            </label>
-            <button class="btn btn-merge-alias" @click="mergeAliasesToB">Merge A Aliases to B</button>
-          </div>
-        </div>
-
-        <!-- Author B Section -->
-        <div class="author-section">
-          <h3>Author B</h3>
-          <div class="author-details">
-            <label>
-              <input type="radio" name="name" v-model="selectedAuthor" value="B" @change="updateMergedAuthorName('B')" />
-              Name: {{ authorB.name }}
-            </label>
-            <label>
-              <input type="radio" name="image" v-model="selectedImage" value="B" @change="updateMergedAuthorImage('B')" />
-              <div class="author-image-container">
-                <covers-author-image :author="authorB" :default-image="defaultImage" />
-              </div>
-            </label>
-            <label>
-              <input type="radio" name="asin" v-model="selectedASIN" value="B" @change="updateMergedAuthorASIN('B')" />
-              ASIN: {{ authorB.asin }}
-            </label>
-            <label>
-              <input type="radio" name="description" v-model="selectedDescription" value="B" @change="updateMergedAuthorDescription('B')" />
-              Description: {{ authorB.description }}
-            </label>
-            <label v-for="(alias, index) in authorB.alias" :key="index">
-              <input type="radio" :name="'alias' + index" v-model="selectedAlias[index]" :value="`B${index}`" @change="updateMergedAuthorAlias('B', index)" />
-              Alias: {{ alias }}
-            </label>
-            <button class="btn btn-merge-alias" @click="mergeAliasesToA">Merge B Aliases to A</button>
-          </div>
-        </div>
-
-        <!-- Merged Author Section -->
-        <div class="merged-author-section">
-          <h3>Merged Author</h3>
-          <div class="author-details">
-            <p>Name: {{ mergedAuthor.name }}</p>
-            <div class="author-image-container">
-              <covers-author-image :author="mergedAuthor" :default-image="defaultImage" />
-            </div>
-            <p>ASIN: {{ mergedAuthor.asin }}</p>
-            <p>Description: {{ mergedAuthor.description }}</p>
-            <p>Alias: {{ mergedAuthor.alias.join(', ') }}</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="modal-actions">
-        <button class="btn btn-primary" @click="mergeAuthors">Merge</button>
-        <button class="btn btn-secondary" @click="close">Cancel</button>
-=======
-
       <div class="sidebar">
         <button @click="setActiveTab('merge')" :class="{ active: activeTab === 'merge' }">Merge</button>
         <button @click="setActiveTab('makeAlias')" :class="{ active: activeTab === 'makeAlias' }">Make Alias</button>
@@ -119,8 +36,8 @@
                   Description: {{ authorA.description }}
                 </label>
                 <label v-for="(alias, index) in authorA.alias" :key="index">
-                  <input type="radio" :name="'alias' + index" v-model="selectedAlias[index]" :value="`A${index}`" @change="updateMergedAuthorAlias('A', index)" />
-                  Alias: {{ alias }}
+                  <input type="checkbox" :name="'aliasA' + index" v-model="selectedAliasA[index]" :value="alias.name || alias" @change="updateMergedAuthorAlias('A', index)" />
+                  Alias: {{ alias.name || alias }}
                 </label>
               </div>
             </div>
@@ -148,8 +65,8 @@
                   Description: {{ authorB.description }}
                 </label>
                 <label v-for="(alias, index) in authorB.alias" :key="index">
-                  <input type="radio" :name="'alias' + index" v-model="selectedAlias[index]" :value="`B${index}`" @change="updateMergedAuthorAlias('B', index)" />
-                  Alias: {{ alias }}
+                  <input type="checkbox" :name="'aliasB' + index" v-model="selectedAliasB[index]" :value="alias.name || alias" @change="updateMergedAuthorAlias('B', index)" />
+                  Alias: {{ alias.name || alias }}
                 </label>
               </div>
             </div>
@@ -158,6 +75,7 @@
             <div class="merged-author-section">
               <h3>Merged Author</h3>
               <div class="author-details">
+                <p>ID: {{ mergedAuthor.id }}</p>
                 <p>Name: {{ mergedAuthor.name }}</p>
                 <div class="author-image-container">
                   <covers-author-image :author="mergedAuthor" :default-image="defaultImage" />
@@ -177,7 +95,7 @@
             <div class="author-image-container">
               <covers-author-image :author="authorA" :default-image="defaultImage" />
             </div>
-            <button class="btn btn-make-alias mt-2" @click="mergeAliasesToB">Make A to B's Alias</button>
+            <button class="btn btn-make-alias mt-2" @click="handleAction('mergeAliasesToB')">Make A to B's Alias</button>
           </div>
 
           <div class="author-section">
@@ -185,17 +103,15 @@
             <div class="author-image-container">
               <covers-author-image :author="authorB" :default-image="defaultImage" />
             </div>
-            <button class="btn btn-make-alias mt-2" @click="mergeAliasesToA">Make B to A's Alias</button>
+            <button class="btn btn-make-alias mt-2" @click="handleAction('mergeAliasesToA')">Make B to A's Alias</button>
           </div>
-      </div>
-
-        <!--  cancel button-->
-        <div class="modal-actions">
-          <button v-if="activeTab === 'merge'" class="btn btn-primary" @click="mergeAuthors">Merge</button>
-          <button class="btn btn-secondary" @click="close">Cancel</button>
         </div>
 
->>>>>>> kang/master
+        <!-- cancel button-->
+        <div class="modal-actions">
+          <button v-if="activeTab === 'merge'" class="btn btn-primary" @click="handleAction('mergeAuthors')">Merge</button>
+          <button class="btn btn-secondary" @click="close">Cancel</button>
+        </div>
       </div>
     </div>
   </div>
@@ -222,6 +138,7 @@ export default {
     return {
       activeTab: 'merge',
       mergedAuthor: {
+        id: '', // 添加 id 属性
         name: '',
         imagePath: '',
         asin: '',
@@ -232,37 +149,20 @@ export default {
       selectedImage: 'A',
       selectedASIN: 'A',
       selectedDescription: 'A',
-      selectedAlias: {},
+      selectedAliasA: {},
+      selectedAliasB: {},
       defaultImage: '/path/to/default-image.png' // 提供图像占位符路径
     }
   },
+  computed: {
+    userToken() {
+      return this.$store.getters['user/getToken']
+    }
+  },
   methods: {
-<<<<<<< HEAD
     updateMergedAuthorName(author) {
       this.mergedAuthor.name = author === 'A' ? this.authorA.name : this.authorB.name
-=======
-    setActiveTab(tab) {
-      this.activeTab = tab;
-    },
-    async makeAlias(direction) {
-      try {
-        const payload = {
-          authorAId: this.authorA.id,
-          authorBId: this.authorB.id,
-          direction // 'AtoB' 或 'BtoA'
-        }
-        const response = await this.$axios.post('/api/authors/makeAlias', payload)
-        this.$toast.success(`Alias created successfully: ${direction}`)
-        this.$emit('make-alias', response.data)
-        this.close()
-      } catch (error) {
-        this.$toast.error('Failed to make alias')
-        console.error('Make alias error:', error)
-      }
->>>>>>> kang/master
-    },
-    updateMergedAuthorName(author) {
-      this.mergedAuthor.name = author === 'A' ? this.authorA.name : this.authorB.name
+      this.mergedAuthor.id = author === 'A' ? this.authorA.id : this.authorB.id // 更新 id
     },
     updateMergedAuthorImage(author) {
       this.mergedAuthor.imagePath = author === 'A' ? this.authorA.imagePath : this.authorB.imagePath
@@ -274,28 +174,119 @@ export default {
       this.mergedAuthor.description = author === 'A' ? this.authorA.description : this.authorB.description
     },
     updateMergedAuthorAlias(author, index) {
-      this.$set(this.mergedAuthor.alias, index, author === 'A' ? this.authorA.alias[index] : this.authorB.alias[index])
+      if (author === 'A') {
+        this.$set(this.selectedAliasA, index, this.authorA.alias[index].name || this.authorA.alias[index])
+      } else {
+        this.$set(this.selectedAliasB, index, this.authorB.alias[index].name || this.authorB.alias[index])
+      }
+      this.mergedAuthor.alias = [...new Set([...Object.values(this.selectedAliasA), ...Object.values(this.selectedAliasB)])]
     },
-    mergeAliasesToB() {
-      this.mergedAuthor.alias = [...new Set([...this.authorB.alias, ...this.authorA.alias])]
+    setActiveTab(tab) {
+      this.activeTab = tab
     },
-    mergeAliasesToA() {
-      this.mergedAuthor.alias = [...new Set([...this.authorA.alias, ...this.authorB.alias])]
+    async makeAlias(direction) {
+      console.log(`Making alias: ${direction}`)
+
+      if (direction !== 'AtoB' && direction !== 'BtoA') {
+        this.$toast.error('Invalid direction for alias creation')
+        return
+      }
+      console.log('Author A:', this.authorA)
+      console.log('Author B:', this.authorB)
+
+      const targetAuthor = direction === 'AtoB' ? this.authorB : this.authorA
+      const aliasOfAuthor = direction === 'AtoB' ? this.authorA : this.authorB
+
+      if (!targetAuthor || !aliasOfAuthor) {
+        console.error('Failed to set targetAuthor or aliasOfAuthor correctly.')
+        this.$toast.error('Failed to set the target author or alias author.')
+        return
+      }
+      console.log('Target Author:', targetAuthor)
+      console.log('Alias Of Author:', aliasOfAuthor)
+
+      if (aliasOfAuthor.is_alias_of) {
+        this.$toast.error('Cannot make an alias of an author who is already an alias')
+        return
+      }
+
+      try {
+        const token = this.userToken
+        const headers = {
+          Authorization: `Bearer ${token}`
+        }
+
+        const payload = {
+          name: targetAuthor.name,
+          asin: targetAuthor.asin,
+          description: targetAuthor.description,
+          alias: targetAuthor.alias,
+          is_alias_of: aliasOfAuthor.id // 设置为另一个作者的ID，表示成为其别名
+        }
+        console.log('Sending alias payload:', payload)
+
+        const response = await this.$axios.patch(`/api/authors/${targetAuthor.id}`, payload, { headers })
+        console.log('Alias creation successful:', response.data)
+
+        this.$toast.success(`Alias created successfully: ${direction}`)
+        this.$emit('make-alias', response.data)
+        this.close()
+      } catch (error) {
+        this.$toast.error('Failed to make alias')
+        console.error('Make alias error:', error)
+      }
     },
     async mergeAuthors() {
+      console.log('Merging authors')
+      console.log('Author A:', this.authorA)
+      console.log('Author B:', this.authorB)
+      console.log('Merged Author:', this.mergedAuthor)
+
       try {
-        const payload = {
-          authorAId: this.authorA.id,
-          authorBId: this.authorB.id,
-          mergedAuthorData: this.mergedAuthor
+        const token = this.userToken
+        console.log('this.userToken', this.userToken)
+        const headers = {
+          Authorization: `Bearer ${token}`
         }
-        const response = await this.$axios.post('/api/authors/merge', payload)
+
+        const payload = {
+          id: this.mergedAuthor.id, // 添加合并后的 id
+          name: this.mergedAuthor.name,
+          asin: this.mergedAuthor.asin,
+          description: this.mergedAuthor.description,
+          alias: [...new Set([...this.authorA.alias, ...this.authorB.alias])], // 合并两个作者的别名
+          is_alias_of: null // 确保合并时不涉及别名逻辑
+        }
+
+        console.log('Sending merge payload:', payload)
+        console.log('Target Author ID for merge:', this.mergedAuthor.id)
+
+        const response = await this.$axios.patch(`/api/authors/${this.mergedAuthor.id}`, payload, { headers })
+        console.log('Merge successful:', response.data)
+
         this.$toast.success('Authors merged successfully')
         this.$emit('merge', response.data)
         this.close()
       } catch (error) {
         this.$toast.error('Failed to merge authors')
         console.error('Merge error:', error)
+      }
+    },
+    async handleAction(action) {
+      if (action === 'mergeAuthors') {
+        await this.mergeAuthors()
+      } else if (action === 'mergeAliasesToB') {
+        if (!this.authorB.is_alias_of) {
+          await this.makeAlias('AtoB')
+        } else {
+          this.$toast.error('Cannot make an alias of an author who is already an alias')
+        }
+      } else if (action === 'mergeAliasesToA') {
+        if (!this.authorA.is_alias_of) {
+          await this.makeAlias('BtoA')
+        } else {
+          this.$toast.error('Cannot make an alias of an author who is already an alias')
+        }
       }
     },
     close() {
@@ -406,20 +397,6 @@ export default {
   background-color: #4b5563;
 }
 
-<<<<<<< HEAD
-/* 新增样式 */
-.btn-merge-alias {
-  background-color: #34d399; /* 自定义颜色 */
-  color: #1a1a1a;
-  margin-top: 10px;
-}
-
-.btn-merge-alias:hover {
-  background-color: #10b981; /* hover 颜色 */
-}
-
-=======
->>>>>>> kang/master
 .author-image-container {
   background-image: url('/path/to/default-image.png');
   background-size: cover;
@@ -429,8 +406,6 @@ export default {
   border-radius: 10px;
   overflow: hidden;
 }
-<<<<<<< HEAD
-=======
 
 .modal-overlay {
   position: fixed;
@@ -526,5 +501,4 @@ export default {
 .btn-make-alias:hover {
   background-color: #10b981;
 }
->>>>>>> kang/master
 </style>
