@@ -66,6 +66,7 @@ export default {
       searching: false,
       isHovering: false,
       selected: false
+      // isSelectionMode: false//
     }
   },
   computed: {
@@ -136,6 +137,7 @@ export default {
     },
     clickCard() {
       this.selected = !this.selected
+      // this.isSelectionMode = this.selected//
     },
     async searchAuthor() {
       this.searching = true

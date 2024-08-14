@@ -12,7 +12,9 @@
       <div cy-id="booksInSeries" v-else-if="booksInSeries" class="absolute rounded-lg bg-black bg-opacity-90 box-shadow-md z-20" :style="{ top: 0.375 + 'em', right: 0.375 + 'em', padding: `0.1em 0.25em` }" style="background-color: #cd9d49dd">
         <p :style="{ fontSize: 0.8 + 'em' }">{{ booksInSeries }}</p>
       </div>
-
+      <div cy-id="editButton" v-if="userCanUpdate" v-show="!isSelectionMode" class="absolute cursor-pointer hover:text-yellow-300 hover:scale-125 transform duration-150 top-0 right-0" :style="{ padding: 0.375 + 'em' }" @click.stop.prevent="editClick">
+        <span class="material-symbols" :style="{ fontSize: 1 + 'em' }">edit</span>
+      </div>
       <div class="w-full h-full absolute top-0 left-0 rounded overflow-hidden z-10">
         <div cy-id="titleImageNotReady" v-show="libraryItem && !imageReady" class="absolute top-0 left-0 w-full h-full flex items-center justify-center" :style="{ padding: 0.5 + 'em' }">
           <p :style="{ fontSize: 0.8 + 'em' }" class="text-gray-300 text-center">{{ title }}</p>
