@@ -386,31 +386,30 @@ class AuthorController {
    */
   async getAlias(req, res) {
     try {
-      const authorId = req.params.id;
-
-      const author = await Database.authorModel.findByPk(authorId);
+      const authorId = req.params.id
+      console.log(`Received authorId: ${authorId}`)
+      const author = await Database.authorModel.findByPk(authorId)
       if (!author) {
-        return res.status(404).send('Author not found');
+        return res.status(404).send('Author not found')
       }
 
       const aliases = await Database.authorModel.findAll({
         where: {
           is_alias_of: authorId
         }
-      });
+      })
 
       if (!aliases.length) {
-        return res.status(200).json([]);
+        return res.status(200).json([])
       }
-      const aliasesArr = aliases.map(alias => ({
+      const aliasesArr = aliases.map((alias) => ({
         id: alias.id,
         name: alias.name
-      }));
-      return res.status(200).json(aliasesArr);
-    }
-    catch (error) {
-      Logger.error(`[AuthorController] Error getting alias: ${error.message}`);
-      return res.status(500).send('Internal Server Error');
+      }))
+      return res.status(200).json(aliasesArr)
+    } catch (error) {
+      Logger.error(`[AuthorController] Error getting alias: ${error.message}`)
+      return res.status(500).send('Internal Server Error')
     }
   }
 
@@ -422,31 +421,29 @@ class AuthorController {
    */
   async addAlias(req, res) {
     try {
-      const { name } = req.body;
+      const { name } = req.body
       if (!name) {
-        return res.status(400).send('Missing name');
+        return res.status(400).send('Missing name')
       }
 
-      const authorId = req.params.id;
-      const author = await Database.authorModel.findByPk(authorId);
+      const authorId = req.params.id
+      const author = await Database.authorModel.findByPk(authorId)
       if (!author) {
-        return res.status(404).send('Author not found');
+        return res.status(404).send('Author not found')
       }
 
       const newAlias = await Database.authorModel.create({
         name: name,
         libraryId: author.libraryId,
         is_alias_of: authorId
-      });
+      })
       return res.status(201).json({
         message: 'Successfully created a new alias',
         alias: newAlias
-      });
-    }
-
-    catch (error) {
-      Logger.error(`[AuthorController] Error adding alias: ${error.message}`);
-      return res.status(500).send('Internal Server Error');
+      })
+    } catch (error) {
+      Logger.error(`[AuthorController] Error adding alias: ${error.message}`)
+      return res.status(500).send('Internal Server Error')
     }
   }
 
@@ -460,13 +457,13 @@ class AuthorController {
     try {
       const { name } = req.body
       if (!name) {
-        return res.status(400).send('Missing name');
+        return res.status(400).send('Missing name')
       }
 
-      const authorId = req.params.id;
-      const author = await Database.authorModel.findByPk(authorId);
+      const authorId = req.params.id
+      const author = await Database.authorModel.findByPk(authorId)
       if (!author) {
-        return res.status(404).send('Author not found');
+        return res.status(404).send('Author not found')
       }
 
       const alias = await Database.authorModel.findOne({
@@ -474,18 +471,17 @@ class AuthorController {
           is_alias_of: authorId,
           name: name
         }
-      });
+      })
       if (!alias) {
-        return res.status(404).send('Alias not found');
+        return res.status(404).send('Alias not found')
       }
-      await alias.update({ is_alias_of: null });
+      await alias.update({ is_alias_of: null })
       return res.status(200).json({
         message: 'Successfully unlinked the alias'
-      });
-    }
-    catch (error) {
-      Logger.error(`[AuthorController] Error deleting alias: ${error.message}`);
-      res.status(500).send('Internal Server Error');
+      })
+    } catch (error) {
+      Logger.error(`[AuthorController] Error deleting alias: ${error.message}`)
+      res.status(500).send('Internal Server Error')
     }
   }
 
@@ -497,23 +493,22 @@ class AuthorController {
    */
   async getOriginAuthor(req, res) {
     try {
-      const authorId = req.params.id;
-      const author = await Database.authorModel.findByPk(authorId);
+      const authorId = req.params.id
+      const author = await Database.authorModel.findByPk(authorId)
       if (!author) {
-        return res.status(404).send('Author not found');
+        return res.status(404).send('Author not found')
       }
 
       const originId = author.is_alias_of
       if (originId == null) {
-        return res.status(200).json([]);
+        return res.status(200).json([])
       }
 
-      const originAuhtor = await Database.authorModel.findByPk(originId);
-      return res.status(200).json(originAuhtor);
-    }
-    catch (error) {
-      Logger.error(`[AuthorController] Error deleting alias: ${error.message}`);
-      res.status(500).send('Internal Server Error');
+      const originAuhtor = await Database.authorModel.findByPk(originId)
+      return res.status(200).json(originAuhtor)
+    } catch (error) {
+      Logger.error(`[AuthorController] Error deleting alias: ${error.message}`)
+      res.status(500).send('Internal Server Error')
     }
   }
 

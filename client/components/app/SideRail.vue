@@ -121,14 +121,20 @@
           <p class="text-xs font-mono pb-0.5">{{ numIssues }}</p>
         </div>
       </nuxt-link>
-      <nuxt-link v-if="isBookLibrary" :to="`/library/${currentLibraryId}/notifications`" class="w-full h-20 flex flex-col items-center justify-center text-white border-b border-primary border-opacity-70 hover:bg-primary cursor-pointer relative" :class="isPodcastLatestPage ? 'bg-primary bg-opacity-80' : 'bg-bg bg-opacity-60'">
-        <span class="material-symbols text-2xl">Notifications</span>
-        <div class="relative">
-          <span v-if="hasNotifications" class="notification-indicator"></span>
-        </div>
-        <p class="pt-1 text-center leading-4" style="font-size: 0.9rem">Notification</p>
-        <div v-show="isNotificationsPage" class="h-full w-0.5 bg-yellow-400 absolute top-0 left-0" />
-      </nuxt-link>
+      <div class="we" @click="clearNotification">
+        <nuxt-link v-if="isBookLibrary" :to="`/library/${currentLibraryId}/notifications`" class="w-full h-20 flex flex-col items-center justify-center text-white border-b border-primary border-opacity-70 hover:bg-primary cursor-pointer relative" :class="isPodcastLatestPage ? 'bg-primary bg-opacity-80' : 'bg-bg bg-opacity-60'">
+          <span class="material-symbols text-2xl">
+            Notifications
+            <!-- 当有通知时显示绿色小圆点 -->
+            <span v-if="isNotification" class="notification-indicator"></span>
+          </span>
+
+          <p class="pt-1 text-center leading-4" style="font-size: 0.9rem">Notification</p>
+
+          <!-- 当在通知页面时显示高亮 -->
+          <div v-show="isNotificationsPage" class="h-full w-0.5 bg-yellow-400 absolute top-0 left-0"></div>
+        </nuxt-link>
+      </div>
     </div>
 
     <div class="w-full h-12 px-1 py-2 border-t border-black/20 bg-bg absolute left-0" :style="{ bottom: streamLibraryItem ? '224px' : '65px' }">
@@ -145,14 +151,14 @@
 export default {
   data() {
     return {
-      showChangelogModal: false
+      showChangelogModal: false,
+      isNotification: false // 默认值
     }
   },
   computed: {
     Source() {
       return this.$store.state.Source
     },
-
     isNotificationsPage() {
       return this.$route.name === 'library-library-notifications'
     },
@@ -245,33 +251,14 @@ export default {
     streamLibraryItem() {
       return this.$store.state.streamLibraryItem
     },
-    hasNotifications() {
-      // 从 Vuex 状态中获取通知数据
-      const notifications = this.$store.state.globals.notifications
-      console.log('Vuex notifications:', notifications)
-      console.log('notifications.length', notifications.length)
-      // 如果通知数组的长度大于 0，则表示有通知
-      return notifications.length > 0
-    },
     showPlaylists() {
       return this.$store.state.libraries.numUserPlaylists > 0
     },
-    //hasUnreadNotifications() {
-    //console.log('Current notifications:', this.$store.state.notifications);
-    //const notifications = this.$store.state.notifications || []
-    // console.log('Current notifications:', notifications)
-    // if (Array.isArray(notifications)) {
-    //   return notifications.some((notification) => !notification.handled)
-    //  }
-    // return false
-    //const result = this.$store.state.globals.hasUnreadNotifications
-    //  console.log('Computed hasUnreadNotifications:', result)
-    // return result
-    //},
     notifications() {
       console.log('Computed - Notifications from state:', this.$store.state.globals.notifications)
       return this.$store.state.globals.notifications
     },
+
     userToken() {
       return this.$store.getters['user/getToken']
     }
@@ -283,20 +270,7 @@ export default {
     clickChangelog() {
       this.showChangelogModal = true
     },
-    //async checkNotifications() {
-    // try {
-    //   const token = sessionStorage.getItem('token')
-    //   const response = await this.$axios.get('/api/getNotifications', {
-    //     Headers: {
-    //       Authorization: `Bearer ${token}`
-    //     }
-    //   })
-    //   // 假设 `response.data` 返回的是一个通知列表
-    //   this.notifications = response.data
-    // } catch (error) {
-    //   console.error('Error fetching notifications:', error)
-    // }
-    // },
+
     async fetchNotifications() {
       try {
         const token = this.userToken
@@ -310,18 +284,24 @@ export default {
 
         this.$store.commit('setNotifications', notifications)
         console.log('Vuex notifications:', this.$store.state.globals.notifications)
-        /* console.log(
-          'Has unread notifications:',
-          notifications.some((notification) => !notification.handled)
-        )
-        const hasUnread = notifications.some((notification) => !notification.handled)
-        this.$store.commit('setHasUnreadNotifications', hasUnread)
 
-        console.log('Has unread notifications:', hasUnread) // 确认这里打印的是 true
-        console.log('Store value after commit:', this.$store.state.globals.hasUnreadNotifications) // 确认 Store 被正确更新*/
+        // 检查通知列表长度是否大于 0，如果是，则设置 isNotification 为 true
+        if (notifications.length > 0) {
+          this.isNotification = true
+        } else {
+          this.isNotification = false
+        }
+        console.log('Vuex notifications:', this.$store.state.globals.notifications)
+        console.log('isNotification:', this.isNotification) // 验证 isNotification 是否正确设置
       } catch (error) {
         console.error('Failed to fetch notifications:', error)
+        this.isNotification = false // 在出现错误时，假设没有通知
       }
+    },
+    clearNotification() {
+      this.isNotification = false
+      console.log('-----------clearNotification---------------')
+      console.log(this.isNotification)
     }
   }
 }
@@ -336,11 +316,11 @@ export default {
 }
 .notification-indicator {
   position: absolute;
-  top: 5px;
-  right: 5px;
+  top: 5px; /* 将圆点往上移动 */
+  right: 5px; /* 将圆点向右移动 */
   height: 10px;
   width: 10px;
-  background-color: green;
+  background-color: green !important;
   border-radius: 50%;
 }
 </style>
