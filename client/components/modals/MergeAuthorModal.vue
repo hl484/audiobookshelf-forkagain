@@ -164,6 +164,24 @@ export default {
     this.setDefaultAuthor()
   },
   methods: {
+    setActiveTab(tab) {
+      this.activeTab = tab;
+    },
+    async makeAlias(direction) {
+      try {
+        const payload = {
+          authorAId: this.authorA.id,
+          authorBId: this.authorB.id,
+          direction // 'AtoB' 或 'BtoA'
+        }
+        const response = await this.$axios.post('/api/authors/makeAlias', payload)
+        this.$toast.success(`Alias created successfully: ${direction}`)
+        this.$emit('make-alias', response.data)
+        this.close()
+      } catch (error) {
+        this.$toast.error('Failed to make alias')
+        console.error('Make alias error:', error)
+      }
     setDefaultAuthor() {
       // 初始化合并作者的显示内容为 authorA 的数据
       this.updateMergedAuthorName(this.selectedAuthor)
