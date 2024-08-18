@@ -16,31 +16,10 @@ const naturalSort = createNewSortInstance({
 })
 class AuthorController {
   constructor() {}
-  // async getAuthor(req, res) {
-  //   const { libraryId, name } = req.body.params
-  //   const authorJson = await Database.getAuthorIdByName(libraryId, name)
-  //   res.json(authorJson)
-  // }
   async findOne(req, res) {
     const include = (req.query.include || '').split(',')
 
     const authorJson = req.author.toJSON()
-
-    //TODO: Determine whether it is an original name or an alias
-    if (req.author.is_alias_of) {
-      const originalAuthor = await Database.authorModel.findByPk(req.author.is_alias_of, {
-        attributes: ['id', 'name']
-      })
-      authorJson.originalAuthor = originalAuthor
-    } else {
-      const aliases = await Database.authorModel.findAll({
-        where: {
-          is_alias_of: req.author.id
-        },
-        attributes: ['id', 'name']
-      })
-      authorJson.aliases = aliases
-    }
 
     // Used on author landing page to include library items and items grouped in series
     if (include.includes('items')) {
@@ -112,6 +91,22 @@ class AuthorController {
       })
       existingAuthor = author?.getOldAuthor()
     }
+
+    const isAliasOfUpdate = payload.is_alias_of !== undefined && payload.is_alias_of !== req.author.is_alias_of
+
+    if (isAliasOfUpdate && payload.is_alias_of) {
+      const affectedAuthors = await Database.authorModel.findAll({
+        where: {
+          is_alias_of: req.author.id
+        }
+      })
+
+      for (const affectedAuthor of affectedAuthors) {
+        affectedAuthor.is_alias_of = payload.is_alias_of // 更新为新的 is_alias_of
+        await affectedAuthor.save() // 保存更新
+      }
+    }
+
     if (existingAuthor) {
       Logger.info(`[AuthorController] Merging author "${req.author.name}" with "${existingAuthor.name}"`)
       const bookAuthorsToCreate = []
@@ -376,140 +371,6 @@ class AuthorController {
       width: width ? parseInt(width) : null
     }
     return CacheManager.handleAuthorCache(res, author, options)
-  }
-
-  /**
-   * GET: /api/authors/:id/alias
-   *
-   * @param {import('express').Request} req
-   * @param {import('express').Response} res
-   */
-  async getAlias(req, res) {
-    try {
-      const authorId = req.params.id
-      console.log(`Received authorId: ${authorId}`)
-      const author = await Database.authorModel.findByPk(authorId)
-      if (!author) {
-        return res.status(404).send('Author not found')
-      }
-
-      const aliases = await Database.authorModel.findAll({
-        where: {
-          is_alias_of: authorId
-        }
-      })
-
-      if (!aliases.length) {
-        return res.status(200).json([])
-      }
-      const aliasesArr = aliases.map((alias) => ({
-        id: alias.id,
-        name: alias.name
-      }))
-      return res.status(200).json(aliasesArr)
-    } catch (error) {
-      Logger.error(`[AuthorController] Error getting alias: ${error.message}`)
-      return res.status(500).send('Internal Server Error')
-    }
-  }
-
-  /**
-   * POST: /api/authors/:id/alias
-   *
-   * @param {import('express').Request} req
-   * @param {import('express').Response} res
-   */
-  async addAlias(req, res) {
-    try {
-      const { name } = req.body
-      if (!name) {
-        return res.status(400).send('Missing name')
-      }
-
-      const authorId = req.params.id
-      const author = await Database.authorModel.findByPk(authorId)
-      if (!author) {
-        return res.status(404).send('Author not found')
-      }
-
-      const newAlias = await Database.authorModel.create({
-        name: name,
-        libraryId: author.libraryId,
-        is_alias_of: authorId
-      })
-      return res.status(201).json({
-        message: 'Successfully created a new alias',
-        alias: newAlias
-      })
-    } catch (error) {
-      Logger.error(`[AuthorController] Error adding alias: ${error.message}`)
-      return res.status(500).send('Internal Server Error')
-    }
-  }
-
-  /**
-   * DELETE: /api/authors/:id/alias
-   *
-   * @param {import('express').Request} req
-   * @param {import('express').Response} res
-   */
-  async deleteAlias(req, res) {
-    try {
-      const { name } = req.body
-      if (!name) {
-        return res.status(400).send('Missing name')
-      }
-
-      const authorId = req.params.id
-      const author = await Database.authorModel.findByPk(authorId)
-      if (!author) {
-        return res.status(404).send('Author not found')
-      }
-
-      const alias = await Database.authorModel.findOne({
-        where: {
-          is_alias_of: authorId,
-          name: name
-        }
-      })
-      if (!alias) {
-        return res.status(404).send('Alias not found')
-      }
-      await alias.update({ is_alias_of: null })
-      return res.status(200).json({
-        message: 'Successfully unlinked the alias'
-      })
-    } catch (error) {
-      Logger.error(`[AuthorController] Error deleting alias: ${error.message}`)
-      res.status(500).send('Internal Server Error')
-    }
-  }
-
-  /**
-   * GET: api/authors/:id/origin
-   *
-   * @param {import('express').Request} req
-   * @param {import('express').Response} res
-   */
-  async getOriginAuthor(req, res) {
-    try {
-      const authorId = req.params.id
-      const author = await Database.authorModel.findByPk(authorId)
-      if (!author) {
-        return res.status(404).send('Author not found')
-      }
-
-      const originId = author.is_alias_of
-      if (originId == null) {
-        return res.status(200).json([])
-      }
-
-      const originAuhtor = await Database.authorModel.findByPk(originId)
-      return res.status(200).json(originAuhtor)
-    } catch (error) {
-      Logger.error(`[AuthorController] Error deleting alias: ${error.message}`)
-      res.status(500).send('Internal Server Error')
-    }
   }
 
   async middleware(req, res, next) {

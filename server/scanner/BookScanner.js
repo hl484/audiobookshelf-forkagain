@@ -492,7 +492,8 @@ class BookScanner {
             category: 'merge',
             bookTitle: bookMetadata.title,
             author: author,
-            aliasAuthor: aliasAuthor
+            aliasAuthor: aliasAuthor,
+            handled: false
           }
 
           const dbUser = await Database.userModel.getUserById(userId)
