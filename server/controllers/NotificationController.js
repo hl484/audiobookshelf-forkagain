@@ -62,9 +62,16 @@ class NotificationController {
   }
   async getNotifications(req, res) {
     const dbUser = await Database.userModel.getUserById(req.user.id)
-    console.log(req.user)
+    //console.log(req.user)
     res.json(dbUser.notifications)
-    console.log(dbUser.notifications)
+    //console.log(dbUser.notifications)
+    if (req.body.clearNotifications) {
+      dbUser.notifications = dbUser.notifications.map((notification) => ({
+        ...notification,
+        handled: true
+      }))
+      await Database.userModel.updateFromOld(dbUser)
+    }
   }
 
   middleware(req, res, next) {
