@@ -5,7 +5,7 @@
 
       <p class="text-center mb-6">The following authors are detected as similar. Do you want to merge them?</p>
       <div class="grid grid-cols-1 gap-4 justify-center">
-        <div v-for="(authorPair, index) in authorPairs" :key="index" class="notification bg-card p-4 rounded-lg shadow-lg flex flex-col items-center w-full">
+        <div v-for="(authorPair, index) in authorPairs" :key="index" :class="['notification', authorPair[0].handled && authorPair[1].handled ? 'read' : 'unread']" class="notification bg-card p-4 rounded-lg shadow-lg flex flex-col items-center w-full">
           <div class="flex justify-between items-center w-full mb-4 author-container">
             <AuthorCard v-for="author in authorPair" :key="author.id" :author="author" :width="cardWidth" :height="cardHeight" @edit="editAuthor" />
           </div>
@@ -160,9 +160,22 @@ export default {
       // 处理合并后的作者逻辑
       console.log('Merged Author:', mergedAuthor)
 
-      this.selectedAuthorPair.forEach((author) => (author.handled = true))
-      await this.markNotificationAsHandled(this.selectedAuthorPair)
+      this.selectedAuthorPair.forEach((author) => {
+        author.handled = true
+      })
+      // 更新整个 authorPairs 数组，确保 Vue 能够检测到变化
+      this.authorPairs = [...this.authorPairs]
+
       this.isMergeModalVisible = false
+      this.updateGlobalNotificationsState()
+    },
+    markNotificationAsHandled(authorPair) {
+      authorPair.forEach((author) => {
+        author.handled = true
+      })
+      // 更新整个 authorPairs 数组，确保 Vue 能够检测到变化
+      this.authorPairs = [...this.authorPairs]
+
       this.updateGlobalNotificationsState()
     },
     async cancelNotification(authorPairToCancel) {
@@ -172,6 +185,7 @@ export default {
     updateGlobalNotificationsState() {
       const hasUnread = this.authorPairs.some((pair) => !pair[0].handled || !pair[1].handled)
       this.$store.commit('setHasUnreadNotifications', hasUnread)
+      this.$forceUpdate() // 强制 Vue 重新渲染
     },
     mouseover(index) {
       this.$set(this.isHovering, index, true)
@@ -230,7 +244,16 @@ export default {
   border-radius: 0.5rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
+.notification.read {
+  /* 已读通知样式 */
+  background-color: #444;
+}
 
+.notification.unread {
+  /* 未读通知样式 */
+  background-color: #2c2c2c;
+  border-left: 4px solid #2563eb; /* 左侧标记 */
+}
 .author-container {
   display: flex;
   justify-content: center;

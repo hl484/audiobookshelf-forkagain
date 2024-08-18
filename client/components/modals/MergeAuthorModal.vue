@@ -137,6 +137,7 @@ export default {
   data() {
     return {
       activeTab: 'merge',
+      selectedAuthor: 'A',
       mergedAuthor: {
         id: '', // 添加 id 属性
         name: '',
@@ -159,7 +160,22 @@ export default {
       return this.$store.getters['user/getToken']
     }
   },
+  mounted() {
+    this.setDefaultAuthor()
+  },
   methods: {
+    setDefaultAuthor() {
+      // 初始化合并作者的显示内容为 authorA 的数据
+      this.updateMergedAuthorName(this.selectedAuthor)
+      this.updateMergedAuthorImage(this.selectedAuthor)
+      this.updateMergedAuthorASIN(this.selectedAuthor)
+      this.updateMergedAuthorDescription(this.selectedAuthor)
+
+      // 如果 alias 是列表，逐一更新
+      for (let index = 0; index < this.authorA.alias.length; index++) {
+        this.updateMergedAuthorAlias(this.selectedAuthor, index)
+      }
+    },
     updateMergedAuthorName(author) {
       this.mergedAuthor.name = author === 'A' ? this.authorA.name : this.authorB.name
       this.mergedAuthor.id = author === 'A' ? this.authorA.id : this.authorB.id // 更新 id
@@ -196,6 +212,13 @@ export default {
 
       const targetAuthor = direction === 'AtoB' ? this.authorB : this.authorA
       const aliasOfAuthor = direction === 'AtoB' ? this.authorA : this.authorB
+      // 如果 aliasOfAuthor 已经是其他人的 alias，询问用户是否要覆盖
+      if (aliasOfAuthor.is_alias_of) {
+        const confirmOverride = confirm(`Author ${aliasOfAuthor.name} is already an alias of another author. Do you want to override this alias relationship?`)
+        if (!confirmOverride) {
+          return
+        }
+      }
 
       if (!targetAuthor || !aliasOfAuthor) {
         console.error('Failed to set targetAuthor or aliasOfAuthor correctly.')
@@ -204,11 +227,6 @@ export default {
       }
       console.log('Target Author:', targetAuthor)
       console.log('Alias Of Author:', aliasOfAuthor)
-
-      if (aliasOfAuthor.is_alias_of) {
-        this.$toast.error('Cannot make an alias of an author who is already an alias')
-        return
-      }
 
       try {
         const token = this.userToken
@@ -242,16 +260,30 @@ export default {
       console.log('Author B:', this.authorB)
       console.log('Merged Author:', this.mergedAuthor)
 
+      // 打印日志，查看 Payload 和 ID
+      console.log('Payload before sending:', {
+        id: this.mergedAuthor.id,
+        name: this.mergedAuthor.name,
+        asin: this.mergedAuthor.asin,
+        description: this.mergedAuthor.description,
+        alias: [...new Set([...this.authorA.alias, ...this.authorB.alias])],
+        is_alias_of: null
+      })
+      console.log('Selected Author A ID:', this.authorA.id)
+      console.log('Selected Author B ID:', this.authorB.id)
+      console.log('Merged Author ID:', this.mergedAuthor.id)
+      console.log('Merged Author Name:', this.mergedAuthor.name)
+
       try {
         const token = this.userToken
         console.log('this.userToken', this.userToken)
         const headers = {
           Authorization: `Bearer ${token}`
         }
-
+        // 设置请求体
         const payload = {
           id: this.mergedAuthor.id, // 添加合并后的 id
-          name: this.mergedAuthor.name,
+          name: this.authorA.name, // 故意设置为authorA的名字，触发合并逻辑
           asin: this.mergedAuthor.asin,
           description: this.mergedAuthor.description,
           alias: [...new Set([...this.authorA.alias, ...this.authorB.alias])], // 合并两个作者的别名
@@ -260,7 +292,7 @@ export default {
 
         console.log('Sending merge payload:', payload)
         console.log('Target Author ID for merge:', this.mergedAuthor.id)
-
+        // 发送请求
         const response = await this.$axios.patch(`/api/authors/${this.mergedAuthor.id}`, payload, { headers })
         console.log('Merge successful:', response.data)
 

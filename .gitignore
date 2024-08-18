@@ -16,6 +16,7 @@
 /ffmpeg*
 /ffprobe*
 /unicode*
+/new*/
 
 sw.*
 .DS_STORE

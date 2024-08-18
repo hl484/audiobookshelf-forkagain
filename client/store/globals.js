@@ -133,11 +133,9 @@ export const mutations = {
     console.log('New notifications:', notifications)
 
     console.log('Mutations - Received notifications:', notifications)
-    /* state.notifications = [...notifications] // 创建一个新数组，确保响应式系统检测到变化
-    state.hasUnreadNotifications = notifications.some((notification) => !notification.handled)
-    state.hasNotifications = notifications.length > 0*/
-    //state.notifications = JSON.parse(JSON.stringify(notifications))
     state.notifications = [...notifications]
+    state.hasUnreadNotifications = notifications.some((notification) => !notification.handled)
+    state.hasNotifications = notifications.length > 0
     console.log('Updated notifications:', state.notifications)
   },
   setHasUnreadNotifications(state, status) {

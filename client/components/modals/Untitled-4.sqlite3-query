@@ -1,0 +1,64 @@
+-- database: /workspaces/audiobookshelf/config/absdatabase.sqlite
+-- Use the ▷ button in the top right corner to run the entire file.
+SELECT
+  *
+FROM
+  users;
+
+INSERT INTO
+  authors (
+    id,
+    name,
+    lastFirst,
+    asin,
+    description,
+    imagePath,
+    is_alias_of,
+    createdAt,
+    updatedAt
+  )
+VALUES
+  (
+    '51cfbca7-3822-4f74-a276-12ff8fa5a7d8',
+    'John Doe',
+    'Doe, John',
+    'B08QJ8X9DF',
+    'An acclaimed author known for his thriller novels.',
+    '/images/authors/john_doe.jpg',
+    '96fe27d4-1e37-42f3-a191-fled8be78ef4',
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP
+  ),
+  (
+    '96fe27d4-1e37-42f3-a191-fled8be78ef4',
+    'Dufu',
+    'Dufu',
+    NULL,
+    'A famous Chinese poet.',
+    '/images/authors/dufu.jpg',
+    NULL,
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP
+  ),
+  (
+    'f8749b7c-2a5b-4e6c-b65f-1d5275d5db1a',
+    'Jane Smith',
+    'Smith, Jane',
+    'B07D29B2XZ',
+    'A well-known romance author with several bestsellers.',
+    '/images/authors/jane_smith.jpg',
+    '96fe27d4-1e37-42f3-a191-fled8be78ef4',
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP
+  ),
+  (
+    'c4d0eaa8-5146-44db-8d6d-e8b2d9b6149a',
+    'Robert Brown',
+    'Brown, Robert',
+    'B09F2X8CZ7',
+    'An award-winning science fiction writer.',
+    '/images/authors/robert_brown.jpg',
+    '96fe27d4-1e37-42f3-a191-fled8be78ef4',
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP
+  );
