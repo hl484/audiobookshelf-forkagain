@@ -165,7 +165,7 @@ export default {
   },
   methods: {
     setActiveTab(tab) {
-      this.activeTab = tab;
+      this.activeTab = tab
     },
     async makeAlias(direction) {
       try {
@@ -182,16 +182,18 @@ export default {
         this.$toast.error('Failed to make alias')
         console.error('Make alias error:', error)
       }
-    setDefaultAuthor() {
-      // 初始化合并作者的显示内容为 authorA 的数据
-      this.updateMergedAuthorName(this.selectedAuthor)
-      this.updateMergedAuthorImage(this.selectedAuthor)
-      this.updateMergedAuthorASIN(this.selectedAuthor)
-      this.updateMergedAuthorDescription(this.selectedAuthor)
+      setDefaultAuthor()
+      {
+        // 初始化合并作者的显示内容为 authorA 的数据
+        this.updateMergedAuthorName(this.selectedAuthor)
+        this.updateMergedAuthorImage(this.selectedAuthor)
+        this.updateMergedAuthorASIN(this.selectedAuthor)
+        this.updateMergedAuthorDescription(this.selectedAuthor)
 
-      // 如果 alias 是列表，逐一更新
-      for (let index = 0; index < this.authorA.alias.length; index++) {
-        this.updateMergedAuthorAlias(this.selectedAuthor, index)
+        // 如果 alias 是列表，逐一更新
+        for (let index = 0; index < this.authorA.alias.length; index++) {
+          this.updateMergedAuthorAlias(this.selectedAuthor, index)
+        }
       }
     },
     updateMergedAuthorName(author) {

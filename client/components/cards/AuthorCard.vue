@@ -7,10 +7,8 @@
           <covers-author-image :author="author" />
 
           <!-- Author name & num books overlay -->
-
           <div cy-id="textInline" v-show="!searching && !nameBelow" class="absolute bottom-0 left-0 w-full py-1e bg-black bg-opacity-60 px-2e">
             <p class="text-center font-semibold truncate" :style="{ fontSize: 0.75 + 'em' }">{{ name }}</p>
-
             <p class="text-center text-gray-200" :style="{ fontSize: 0.65 + 'em' }">{{ numBooks }} {{ $strings.LabelBooks }}</p>
           </div>
 
@@ -39,6 +37,49 @@
         <div cy-id="nameBelow" v-show="nameBelow" class="w-full py-1e px-2e">
           <p class="text-center font-semibold truncate text-gray-200" :style="{ fontSize: 0.75 + 'em' }">{{ name }}</p>
         </div>
+
+        <!-- Series name overlay -->
+        <div cy-id="seriesNameOverlay" v-if="booksInSeries && libraryItem && isHovering" class="w-full h-full absolute top-0 left-0 z-10 bg-black bg-opacity-60 rounded flex items-center justify-center" :style="{ padding: 1 + 'em' }">
+          <p v-if="seriesName" class="text-gray-200 text-center" :style="{ fontSize: 1.1 + 'em' }">{{ seriesName }}</p>
+        </div>
+
+        <!-- Error widget -->
+        <ui-tooltip cy-id="ErrorTooltip" v-if="showError" :text="errorText" class="absolute bottom-4e left-0 z-10">
+          <div :style="{ height: 1.5 + 'em', width: 2.5 + 'em' }" class="bg-error rounded-r-full shadow-md flex items-center justify-end border-r border-b border-red-300">
+            <span class="material-symbols text-red-100 pr-1e" :style="{ fontSize: 0.875 + 'em' }">priority_high</span>
+          </div>
+        </ui-tooltip>
+
+        <!-- rss feed icon -->
+        <div cy-id="rssFeed" v-if="rssFeed && !isSelectionMode && !isHovering" class="absolute text-success top-0 left-0 z-10" :style="{ padding: 0.375 + 'em' }">
+          <span class="material-symbols" :style="{ fontSize: 1.5 + 'em' }">rss_feed</span>
+        </div>
+        <!-- media item shared icon -->
+        <div cy-id="mediaItemShare" v-if="mediaItemShare && !isSelectionMode && !isHovering" class="absolute text-success left-0 z-10" :style="{ padding: 0.375 + 'em', top: rssFeed ? '2em' : '0px' }">
+          <span class="material-symbols" :style="{ fontSize: 1.5 + 'em' }">public</span>
+        </div>
+
+        <!-- Series sequence -->
+        <div cy-id="seriesSequence" v-if="seriesSequence && !isHovering && !isSelectionMode" class="absolute rounded-lg bg-black bg-opacity-90 box-shadow-md z-10" :style="{ top: 0.375 + 'em', right: 0.375 + 'em', padding: `${0.1}em ${0.25}em` }">
+          <p :style="{ fontSize: 0.8 + 'em' }">#{{ seriesSequence }}</p>
+        </div>
+
+        <!-- Podcast Episode # -->
+        <div cy-id="podcastEpisodeNumber" v-if="recentEpisodeNumber !== null && !isHovering && !isSelectionMode && !processing" class="absolute rounded-lg bg-black bg-opacity-90 box-shadow-md z-10" :style="{ top: 0.375 + 'em', right: 0.375 + 'em', padding: `${0.1}em ${0.25}em` }">
+          <p :style="{ fontSize: 0.8 + 'em' }">
+            Episode<span v-if="recentEpisodeNumber"> #{{ recentEpisodeNumber }}</span>
+          </p>
+        </div>
+
+        <!-- Podcast Num Episodes -->
+        <div cy-id="numEpisodes" v-else-if="!numEpisodesIncomplete && numEpisodes && !isHovering && !isSelectionMode" class="absolute rounded-full bg-black bg-opacity-90 box-shadow-md z-10 flex items-center justify-center" :style="{ top: 0.375 + 'em', right: 0.375 + 'em', width: 1.25 + 'em', height: 1.25 + 'em' }">
+          <p :style="{ fontSize: 0.8 + 'em' }">{{ numEpisodes }}</p>
+        </div>
+
+        <!-- Podcast Num Episodes -->
+        <div cy-id="numEpisodesIncomplete" v-else-if="numEpisodesIncomplete && !isHovering && !isSelectionMode" class="absolute rounded-full bg-yellow-400 text-black font-semibold box-shadow-md z-10 flex items-center justify-center" :style="{ top: 0.375 + 'em', right: 0.375 + 'em', width: 1.25 + 'em', height: 1.25 + 'em' }">
+          <p :style="{ fontSize: 0.8 + 'em' }">{{ numEpisodesIncomplete }}</p>
+        </div>
       </div>
     </nuxt-link>
   </div>
@@ -65,7 +106,15 @@ export default {
     return {
       searching: false,
       isHovering: false,
-      selected: false
+      selected: false,
+      processing: false,
+      libraryItem: null,
+      imageReady: false,
+      selected: false,
+      isSelectionMode: false,
+      displayTitleTruncated: false,
+      displaySubtitleTruncated: false,
+      showCoverBg: false
       // isSelectionMode: false//
     }
   },
@@ -135,10 +184,24 @@ export default {
     mouseleave() {
       this.isHovering = false
     },
-    clickCard() {
+    clickCard(e) {
       this.selected = !this.selected
+
+      if (this.processing) return
+      if (this.isSelectionMode) {
+        e.stopPropagation()
+        e.preventDefault()
+        this.selectBtnClick(e)
+      } else {
+        var router = this.$router || this.$nuxt.$router
+        if (router) {
+          if (this.collapsedSeries) router.push(`/library/${this.libraryId}/series/${this.collapsedSeries.id}`)
+          else router.push(`/item/${this.libraryItemId}`)
+        }
+      }
       // this.isSelectionMode = this.selected//
     },
+
     async searchAuthor() {
       this.searching = true
       const payload = {}

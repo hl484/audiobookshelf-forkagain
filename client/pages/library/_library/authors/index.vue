@@ -12,7 +12,7 @@
           <div class="author-card-container p-3e">
             <cards-author-card :key="author.id" :author="author" @edit="editAuthor" />
             <div class="flex justify-center mt-2">
-              <input type="checkbox" v-model="selectedAuthorsMap[author.id]" @change="updateSelectedAuthors" :disabled="selectedAuthors.length >= 2 && !selectedAuthorsMap[author.id]" />
+              <!-- <input type="checkbox" v-model="selectedAuthorsMap[author.id]" @change="updateSelectedAuthors" :disabled="selectedAuthors.length >= 2 && !selectedAuthorsMap[author.id]" /> -->
             </div>
           </div>
         </template>
@@ -155,6 +155,9 @@ export default {
       console.log('Merged Author:', mergedAuthor)
       this.isMergeModalVisible = false
       this.selectedAuthorsMap = {}
+    },
+    toggleAuthorSelection(authorId) {
+      this.$set(this.selectedAuthorsMap, authorId, !this.selectedAuthorsMap[authorId])
     }
   },
   mounted() {
