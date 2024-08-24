@@ -10,7 +10,7 @@
       <div class="flex flex-wrap justify-center">
         <template v-for="author in authorsSorted">
           <div class="author-card-container p-3e">
-            <cards-author-card :key="author.id" :author="author" @edit="editAuthor" />
+            <cards-author-card :key="author.id" :author="author" :selected-authors-map="selectedAuthorsMap" @edit="editAuthor" @authorSelected="handleAuthorSelected" />
             <div class="flex justify-center mt-2">
               <!-- <input type="checkbox" v-model="selectedAuthorsMap[author.id]" @change="updateSelectedAuthors" :disabled="selectedAuthors.length >= 2 && !selectedAuthorsMap[author.id]" /> -->
             </div>
@@ -142,6 +142,7 @@ export default {
       this.selectedAuthors = this.authors.filter((author) => this.selectedAuthorsMap[author.id])
       this.selectedAuthors = this.authors.filter((author) => this.selectedAuthorsMap[author.id])
     },
+
     showMergeModal() {
       if (this.selectedAuthors.length === 2) {
         this.isMergeModalVisible = true
@@ -158,6 +159,10 @@ export default {
     },
     toggleAuthorSelection(authorId) {
       this.$set(this.selectedAuthorsMap, authorId, !this.selectedAuthorsMap[authorId])
+    },
+    handleAuthorSelected({ authorId, selected }) {
+      this.$set(this.selectedAuthorsMap, authorId, selected)
+      this.updateSelectedAuthors()
     }
   },
   mounted() {
